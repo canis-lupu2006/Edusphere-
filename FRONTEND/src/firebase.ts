@@ -20,9 +20,14 @@ export const db = getFirestore(app)
 export const storage = getStorage(app)
 export const functions = getFunctions(app)
 
-// En dev : pointer vers l'émulateur Functions (npm run serve dans /functions)
+// En dev : émulateur Functions (évite le double-connect au HMR)
 if (import.meta.env.DEV) {
-  connectFunctionsEmulator(functions, '127.0.0.1', 5001)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const g = globalThis as any
+  if (!g.__EDUSPHERE_FUNCTIONS_EMULATOR__) {
+    connectFunctionsEmulator(functions, '127.0.0.1', 5001)
+    g.__EDUSPHERE_FUNCTIONS_EMULATOR__ = true
+  }
 }
 
 export default app

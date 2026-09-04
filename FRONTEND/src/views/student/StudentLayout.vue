@@ -1,7 +1,7 @@
 <template>
   <DashboardLayout
     :items="nav"
-    space-label="Espace élève"
+    space-label="ESPACE ÉLÈVE"
     :subtitle="auth.profile?.classeNom || auth.profile?.classeId || 'Élève'"
     accent="blue"
   >
@@ -18,7 +18,9 @@ import {
   ClipboardList,
   Sparkles,
   TrendingUp,
+  Users,
   Ticket,
+  Archive,
 } from 'lucide-vue-next'
 import DashboardLayout from '@/components/layout/DashboardLayout.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -31,6 +33,8 @@ const nav = computed(() => [
   { to: '/student/exercices', label: 'Exercices', icon: ClipboardList },
   { to: '/student/tuteur', label: 'Tuteur IA', icon: Sparkles },
   { to: '/student/progression', label: 'Progression', icon: TrendingUp },
+  { to: '/student/groupes', label: 'Groupes', icon: Users },
   { to: '/student/tickets', label: 'Mes tickets', icon: Ticket },
+  { to: '/student/epreuves', label: "Banque d'épreuves", icon: Archive },
 ])
 </script>

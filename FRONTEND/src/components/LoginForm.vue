@@ -96,7 +96,11 @@ const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
-const error = ref('')
+const error = ref(
+  route.query.error === 'no-role'
+    ? 'Aucun rôle associé à ce compte. Vérifie le document users/{uid} dans Firestore.'
+    : '',
+)
 const forgotHint = ref(false)
 
 async function submit() {

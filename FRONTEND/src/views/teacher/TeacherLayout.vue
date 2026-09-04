@@ -1,8 +1,8 @@
 <template>
   <DashboardLayout
     :items="nav"
-    space-label="Professeur"
-    :subtitle="'Enseignant'"
+    space-label="PROFESSEUR"
+    :subtitle="'Professeur'"
     accent="purple"
   >
     <RouterView />
@@ -14,18 +14,20 @@ import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 import {
   LayoutDashboard,
-  Ticket,
-  BookOpen,
+  GraduationCap,
+  Calendar,
+  Sparkles,
   ClipboardList,
-  TrendingUp,
+  MessageSquare,
 } from 'lucide-vue-next'
 import DashboardLayout from '@/components/layout/DashboardLayout.vue'
 
 const nav = computed(() => [
   { to: '/teacher', label: 'Tableau de bord', icon: LayoutDashboard, exact: true },
-  { to: '/teacher/tickets', label: 'Tickets', icon: Ticket },
-  { to: '/teacher/cours', label: 'Cours', icon: BookOpen },
-  { to: '/teacher/exercices', label: 'Exercices', icon: ClipboardList },
-  { to: '/teacher/progression', label: 'Progression', icon: TrendingUp },
+  { to: '/teacher/comprehension', label: 'Compréhension', icon: GraduationCap },
+  { to: '/teacher/programme', label: 'Programme & Planification', icon: Calendar },
+  { to: '/teacher/contenus', label: 'Contenus & Validation IA', icon: Sparkles },
+  { to: '/teacher/devoirs', label: 'Devoirs & Évaluations', icon: ClipboardList },
+  { to: '/teacher/tickets', label: 'Tickets', icon: MessageSquare },
 ])
 </script>

@@ -47,21 +47,40 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   let resolveReady: (() => void) | null = null
+  let readySettled = false
   const ready = new Promise<void>((resolve) => {
     resolveReady = resolve
   })
 
+  function markReady() {
+    if (readySettled) {
+      loading.value = false
+      return
+    }
+    readySettled = true
+    loading.value = false
+    resolveReady?.()
+    resolveReady = null
+  }
+
   function init() {
-    onAuthStateChanged(auth, async (firebaseUser) => {
+    const bootTimeout = window.setTimeout(() => {
+      console.warn('Auth: timeout démarrage')
+      markReady()
+    }, 2500)
+
+    onAuthStateChanged(auth, (firebaseUser) => {
+      window.clearTimeout(bootTimeout)
       user.value = firebaseUser
+
+      // Débloque l'UI immédiatement (évite l'écran "Chargement…" bloqué)
+      markReady()
+
       if (firebaseUser) {
-        await fetchProfile(firebaseUser.uid)
+        void fetchProfile(firebaseUser.uid)
       } else {
         profile.value = null
       }
-      loading.value = false
-      resolveReady?.()
-      resolveReady = null
     })
   }
 

@@ -2,11 +2,16 @@
   <div class="glass-card flex h-[min(70vh,640px)] flex-col overflow-hidden">
     <div class="flex-1 space-y-4 overflow-y-auto p-5">
       <div v-if="!messages.length" class="flex h-full flex-col items-center justify-center text-center">
-        <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-violet-500/20 shadow-glow-purple">
-          <Sparkles class="h-8 w-8 text-violet-300" />
+        <div
+          class="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/15 ring-4 ring-blue-500/20 shadow-glow"
+        >
+          <Sparkles class="h-9 w-9 text-blue-300" />
         </div>
-        <p class="max-w-sm text-sm text-white/55">
-          Expose-moi tes incompréhensions ! Je t'aide à comprendre en te guidant pas à pas.
+        <p class="font-display text-xl font-semibold text-white">
+          Expose-moi tes incompréhensions !
+        </p>
+        <p class="mt-2 max-w-sm text-sm text-white/50">
+          Je t'aide à comprendre en te guidant pas à pas.
         </p>
       </div>
       <div
@@ -28,16 +33,31 @@
       </div>
       <p v-if="pending" class="text-xs text-white/35">Le tuteur réfléchit…</p>
     </div>
-    <form class="flex gap-2 border-t border-white/10 p-4" @submit.prevent="send">
+    <form
+      class="flex items-center gap-2 border-t border-white/10 p-4"
+      @submit.prevent="send"
+    >
+      <button
+        type="button"
+        class="rounded-xl p-2.5 text-white/40 transition hover:bg-white/5 hover:text-white/70"
+        aria-label="Pièce jointe"
+      >
+        <Paperclip class="h-5 w-5" />
+      </button>
       <input
         v-model="draft"
         type="text"
         class="input-field !pl-4"
-        placeholder="Écris ta question…"
+        placeholder="Écris ta réponse..."
         :disabled="pending"
       />
-      <button type="submit" class="btn-primary shrink-0 !px-4" :disabled="pending || !draft.trim()">
+      <button
+        type="submit"
+        class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-4 py-3 text-sm font-semibold shadow-glow-purple transition hover:brightness-110 disabled:opacity-50"
+        :disabled="pending || !draft.trim()"
+      >
         <Send class="h-4 w-4" />
+        Envoyer
       </button>
     </form>
   </div>
@@ -45,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Sparkles, Send } from 'lucide-vue-next'
+import { Sparkles, Send, Paperclip } from 'lucide-vue-next'
 import { useCloudFunctions } from '@/composables/useCloudFunctions'
 
 interface ChatMessage {

@@ -1,0 +1,203 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(uid())).data;
+    }
+
+    function role() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(uid()))
+        ? userDoc().role
+        : null;
+    }
+
+    function isRole(r) {
+      return role() == r;
+    }
+
+    function isStaff() {
+      return isRole('enseignant') || isRole('admin') || isRole('ministere');
+    }
+
+    function isAdminOrMinistere() {
+      return isRole('admin') || isRole('ministere');
+    }
+
+    // ── users ────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && (uid() == userId || isAdminOrMinistere());
+      allow update: if signedIn() && (uid() == userId || isAdminOrMinistere());
+      allow delete: if isAdminOrMinistere();
+    }
+
+    // ── ecoles / classes ─────────────────────────────────
+    match /ecoles/{id} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+
+    match /classes/{id} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere() || isRole('enseignant');
+    }
+
+    // ── pédagogie ────────────────────────────────────────
+    match /courses/{id} {
+      allow read: if signedIn();
+      allow create, update: if isRole('enseignant') || isAdminOrMinistere();
+      allow delete: if isAdminOrMinistere()
+        || (isRole('enseignant') && resource.data.enseignantId == uid());
+    }
+
+    match /exercises/{id} {
+      allow read: if signedIn();
+      allow create, update: if isRole('enseignant') || isAdminOrMinistere();
+      allow delete: if isAdminOrMinistere()
+        || (isRole('enseignant') && resource.data.enseignantId == uid());
+    }
+
+    match /attempts/{id} {
+      allow read: if signedIn()
+        && (resource.data.eleveId == uid()
+          || isStaff()
+          || isRole('parent'));
+      allow create: if signedIn() && request.resource.data.eleveId == uid();
+      allow update: if signedIn()
+        && (resource.data.eleveId == uid() || isStaff());
+      allow delete: if isAdminOrMinistere();
+    }
+
+    match /progress/{id} {
+      allow read: if signedIn();
+      allow write: if signedIn()
+        && (request.resource.data.eleveId == uid()
+          || isStaff()
+          || !('eleveId' in request.resource.data));
+    }
+
+    match /homework/{id} {
+      allow read: if signedIn();
+      allow create, update: if isRole('enseignant') || isAdminOrMinistere()
+        || (signedIn() && request.resource.data.eleveId == uid());
+      allow delete: if isRole('enseignant') || isAdminOrMinistere();
+    }
+
+    // ── tickets ──────────────────────────────────────────
+    match /tickets/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn()
+        && (resource.data.eleveId == uid() || isStaff() || isRole('parent'));
+      allow delete: if isAdminOrMinistere();
+    }
+
+    // ── enseignant IA / programme ────────────────────────
+    match /ai_contents/{id} {
+      allow read: if signedIn();
+      allow write: if isRole('enseignant') || isAdminOrMinistere();
+    }
+
+    match /resources/{id} {
+      allow read: if signedIn();
+      allow write: if isRole('enseignant') || isAdminOrMinistere();
+    }
+
+    match /program_chapters/{id} {
+      allow read: if signedIn();
+      allow write: if isRole('enseignant') || isAdminOrMinistere();
+    }
+
+    match /comprehension/{id} {
+      allow read: if signedIn();
+      allow write: if isRole('enseignant') || isAdminOrMinistere();
+    }
+
+    // ── élève : groupes, épreuves, révisions ─────────────
+    match /groups/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn();
+      allow delete: if isStaff();
+    }
+
+    match /epreuves/{id} {
+      allow read: if signedIn();
+      allow write: if isStaff();
+    }
+
+    match /revisions/{id} {
+      allow read: if signedIn()
+        && (resource.data.eleveId == uid() || isStaff() || isRole('parent'));
+      allow write: if signedIn();
+    }
+
+    match /frequent_errors/{id} {
+      allow read: if signedIn()
+        && (resource.data.eleveId == uid() || isStaff() || isRole('parent'));
+      allow write: if signedIn();
+    }
+
+    match /tutor_sessions/{id} {
+      allow read: if signedIn()
+        && (resource.data.eleveId == uid() || isStaff());
+      allow write: if signedIn() && request.resource.data.eleveId == uid();
+    }
+
+    // ── parent / messagerie / alertes ────────────────────
+    match /messages/{id} {
+      allow read: if signedIn()
+        && (resource.data.toId == uid()
+          || resource.data.fromId == uid()
+          || isStaff());
+      allow create: if signedIn();
+      allow update: if signedIn()
+        && (resource.data.toId == uid() || resource.data.fromId == uid() || isStaff());
+      allow delete: if isAdminOrMinistere();
+    }
+
+    match /alerts/{id} {
+      allow read: if signedIn();
+      allow write: if isStaff();
+    }
+
+    match /school_announcements/{id} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+
+    // ── admin : emploi du temps / événements / logs ──────
+    match /schedules/{id} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+
+    match /events/{id} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+
+    match /activity_logs/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdminOrMinistere();
+    }
+
+    // ── filet de sécurité : tout le reste ────────────────
+    match /{document=**} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+  }
+}

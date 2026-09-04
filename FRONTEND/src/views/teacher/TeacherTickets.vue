@@ -2,12 +2,20 @@
   <div>
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
+        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+          PROFESSEUR
+        </p>
         <h1 class="page-title">Tickets</h1>
         <p class="page-sub">Demandes d'aide de vos élèves (temps réel).</p>
       </div>
-      <button type="button" class="btn-primary text-sm" :disabled="summarizing" @click="summarize">
-        Résumer les tickets
-      </button>
+      <div class="flex flex-wrap gap-2">
+        <RouterLink to="/teacher/comprehension" class="btn-secondary text-sm">
+          Compréhension
+        </RouterLink>
+        <button type="button" class="btn-primary text-sm" :disabled="summarizing" @click="summarize">
+          Résumer les tickets
+        </button>
+      </div>
     </header>
 
     <div v-if="summary" class="glass-card mb-6 border-violet-500/20 p-4 text-sm text-white/70">
@@ -23,6 +31,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import type { Unsubscribe } from 'firebase/firestore'
 import type { Ticket } from '@/types/models'
+import { RouterLink } from 'vue-router'
 import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore'
 import TicketList from '@/components/TicketList.vue'
 import { db } from '@/firebase'
@@ -63,6 +72,7 @@ async function resolveTicket(t: Ticket) {
 }
 
 async function summarize() {
+  if (!classeIds.value.length) return
   summarizing.value = true
   try {
     const data = await getTicketSummary({ classeId: classeIds.value[0] })

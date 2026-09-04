@@ -1,8 +1,6 @@
 /**
- * Seed Firestore de test pour EduSphere (sans Auth obligatoire).
+ * Seed Firestore + Auth pour EduSphere (toutes maquettes).
  * Usage: node scripts/seed-firestore.mjs
- *
- * Si Auth Email/Password est activé, crée aussi les comptes de test.
  */
 import { initializeApp } from 'firebase/app'
 import {
@@ -23,22 +21,32 @@ const firebaseConfig = {
 }
 
 const PASSWORD = 'Test1234!'
+const now = () => Timestamp.now()
 
 const IDS = {
   ecole: 'ecole_demo_lycee',
-  classe: 'classe_2nde_a',
-  courseMath: 'course_math_equations',
-  courseFr: 'course_fr_dissertation',
-  exerciseMath: 'exo_math_qcm1',
-  exerciseFr: 'exo_fr_vrai_faux',
+  ecole2: 'ecole_demo_ceg',
+  classe: 'classe_tle_d',
+  courseMath: 'course_math',
+  courseFr: 'course_fr',
+  coursePc: 'course_pc',
+  courseSvt: 'course_svt',
+  courseAng: 'course_ang',
+  courseHg: 'course_hg',
+  exerciseMath: 'exo_math_suites',
+  exercisePc: 'exo_pc_circuits',
   announcement: 'annonce_rentree',
   attempt: 'attempt_demo_1',
-  ticket: 'ticket_demo_1',
-  progressMath: 'progress_math_demo',
-  progressFr: 'progress_fr_demo',
+  ticket1: 'ticket_suites',
+  ticket2: 'ticket_equations',
+  progressMath: 'progress_math',
+  progressFr: 'progress_fr',
+  progressSvt: 'progress_svt',
+  progressAng: 'progress_ang',
+  progressPhil: 'progress_phil',
+  progressPc: 'progress_pc',
 }
 
-/** UIDs de secours si Auth n'est pas encore configuré */
 const FALLBACK_UIDS = {
   eleve: 'uid_eleve_demo',
   enseignant: 'uid_enseignant_demo',
@@ -48,11 +56,11 @@ const FALLBACK_UIDS = {
 }
 
 const ACCOUNTS = [
-  { key: 'eleve', email: 'eleve@edusphere.test', displayName: 'Awa Diallo', role: 'eleve' },
-  { key: 'enseignant', email: 'enseignant@edusphere.test', displayName: 'M. Ndiaye', role: 'enseignant' },
-  { key: 'parent', email: 'parent@edusphere.test', displayName: 'Mme Diallo', role: 'parent' },
-  { key: 'admin', email: 'admin@edusphere.test', displayName: 'Admin Collège', role: 'admin' },
-  { key: 'ministere', email: 'ministere@edusphere.test', displayName: 'Agent Ministère', role: 'ministere' },
+  { key: 'eleve', email: 'eleve@edusphere.test', displayName: 'Ava Mensah', role: 'eleve' },
+  { key: 'enseignant', email: 'enseignant@edusphere.test', displayName: 'Kodjo Aziaka', role: 'enseignant' },
+  { key: 'parent', email: 'parent@edusphere.test', displayName: 'Boris Mensah', role: 'parent' },
+  { key: 'admin', email: 'admin@edusphere.test', displayName: 'Sarah Adjowa', role: 'admin' },
+  { key: 'ministere', email: 'ministere@edusphere.test', displayName: 'Ministère Éducation', role: 'ministere' },
 ]
 
 const app = initializeApp(firebaseConfig)
@@ -74,253 +82,613 @@ async function signInExisting({ email }) {
 async function resolveUids() {
   const uids = { ...FALLBACK_UIDS }
   let authOk = true
-
   console.log('1) Comptes Auth…')
   for (const account of ACCOUNTS) {
     try {
       try {
         uids[account.key] = await ensureAuthUser(account)
-        console.log(`  ✓ Auth créé: ${account.email}`)
+        console.log(`  ✓ ${account.email}`)
       } catch (e) {
         if (e.code === 'auth/email-already-in-use') {
           uids[account.key] = await signInExisting(account)
-          console.log(`  → Auth existant: ${account.email}`)
-        } else {
-          throw e
-        }
+          console.log(`  → ${account.email}`)
+        } else throw e
       }
     } catch (e) {
       authOk = false
-      console.log(`  ✗ Auth indisponible (${e.code || e.message})`)
-      console.log('  → Seed Firestore avec UIDs de démo (active Email/Password puis relance)')
+      console.log(`  ✗ Auth: ${e.code || e.message}`)
+      Object.assign(uids, FALLBACK_UIDS)
       break
     }
   }
-
-  if (!authOk) {
-    Object.assign(uids, FALLBACK_UIDS)
+  // Rester connecté pour les écritures Firestore (règles auth != null)
+  if (authOk) {
+    await signInWithEmailAndPassword(auth, 'admin@edusphere.test', PASSWORD)
+    console.log('  ✓ Session admin pour le seed')
   }
-
   return { uids, authOk }
 }
 
 async function seed() {
-  console.log('\n=== Seed EduSphere (edusphere-69403) ===\n')
-
+  console.log('\n=== Seed EduSphere (maquettes v1.1) ===\n')
   const { uids, authOk } = await resolveUids()
-  const now = Timestamp.now()
+  const t = now()
 
-  console.log('\n2) ecoles…')
+  console.log('2) ecoles, classes, users…')
   await setDoc(doc(db, 'ecoles', IDS.ecole), {
-    nom: 'Lycée Demo Dakar',
-    name: 'Lycée Demo Dakar',
-    region: 'Dakar',
-    ville: 'Dakar',
-    createdAt: now,
+    nom: 'Lycée Moderne de Lomé',
+    name: 'Lycée Moderne de Lomé',
+    region: 'Maritime',
+    ville: 'Lomé',
+    type: 'Lycée',
+    niveau: 'Secondaire',
+    elevesCount: 1250,
+    enseignantsCount: 78,
+    maitrise: 85,
+    usageHorsLigne: 18,
+    createdAt: t,
   })
-
-  console.log('3) classes…')
+  await setDoc(doc(db, 'ecoles', IDS.ecole2), {
+    nom: 'CEG de Kpélé-Atavié',
+    region: 'Plateaux',
+    ville: 'Kpélé',
+    type: 'Collège',
+    niveau: 'Secondaire',
+    elevesCount: 420,
+    enseignantsCount: 22,
+    maitrise: 28,
+    usageHorsLigne: 45,
+    createdAt: t,
+  })
   await setDoc(doc(db, 'classes', IDS.classe), {
-    nom: '2nde A',
-    niveau: '2nde',
+    nom: 'Terminale D',
+    niveau: 'Terminale D',
     ecoleId: IDS.ecole,
     enseignantIds: [uids.enseignant],
     eleveIds: [uids.eleve],
-    createdAt: now,
+    createdAt: t,
   })
 
-  console.log('4) users…')
   await setDoc(doc(db, 'users', uids.eleve), {
     role: 'eleve',
     email: 'eleve@edusphere.test',
-    displayName: 'Awa Diallo',
-    nom: 'Awa Diallo',
+    displayName: 'Ava Mensah',
+    nom: 'Ava Mensah',
     classeId: IDS.classe,
-    classeNom: '2nde A',
+    classeNom: 'Terminale D',
     ecoleId: IDS.ecole,
-    ecoleNom: 'Lycée Demo Dakar',
+    ecoleNom: 'Lycée Moderne de Lomé',
+    status: 'actif',
+    moyenne: 15,
+    streak: 5,
   })
   await setDoc(doc(db, 'users', uids.enseignant), {
     role: 'enseignant',
     email: 'enseignant@edusphere.test',
-    displayName: 'M. Ndiaye',
-    nom: 'M. Ndiaye',
+    displayName: 'Kodjo Aziaka',
+    nom: 'Kodjo Aziaka',
     classeIds: [IDS.classe],
     ecoleId: IDS.ecole,
-    ecoleNom: 'Lycée Demo Dakar',
+    ecoleNom: 'Lycée Moderne de Lomé',
+    status: 'actif',
   })
   await setDoc(doc(db, 'users', uids.parent), {
     role: 'parent',
     email: 'parent@edusphere.test',
-    displayName: 'Mme Diallo',
-    nom: 'Mme Diallo',
+    displayName: 'Boris Mensah',
+    nom: 'Boris Mensah',
     enfantIds: [uids.eleve],
     ecoleId: IDS.ecole,
-    ecoleNom: 'Lycée Demo Dakar',
+    ecoleNom: 'Lycée Moderne de Lomé',
   })
   await setDoc(doc(db, 'users', uids.admin), {
     role: 'admin',
     email: 'admin@edusphere.test',
-    displayName: 'Admin Collège',
-    nom: 'Admin Collège',
+    displayName: 'Sarah Adjowa',
+    nom: 'Sarah Adjowa',
     ecoleId: IDS.ecole,
-    ecoleNom: 'Lycée Demo Dakar',
+    ecoleNom: 'Lycée Moderne de Lomé',
   })
   await setDoc(doc(db, 'users', uids.ministere), {
     role: 'ministere',
     email: 'ministere@edusphere.test',
-    displayName: 'Agent Ministère',
-    nom: 'Agent Ministère',
+    displayName: 'Ministère Éducation',
+    nom: 'Ministère Éducation',
   })
 
-  console.log('5) courses…')
-  await setDoc(doc(db, 'courses', IDS.courseMath), {
-    titre: 'Équations du 1er degré',
-    matiere: 'Mathématiques',
-    description: 'Résoudre des équations simples ax + b = c.',
-    classeId: IDS.classe,
-    enseignantId: uids.enseignant,
-    enseignantNom: 'M. Ndiaye',
-    ressources: [{ titre: 'Fiche résumé', url: 'https://example.com/equations.pdf' }],
-    createdAt: now,
-  })
-  await setDoc(doc(db, 'courses', IDS.courseFr), {
-    titre: 'Dissertation — intro',
-    matiere: 'Français',
-    description: 'Structurer une introduction de dissertation.',
-    classeId: IDS.classe,
-    enseignantId: uids.enseignant,
-    enseignantNom: 'M. Ndiaye',
-    ressources: [],
-    createdAt: now,
-  })
+  console.log('3) courses, exercises, attempts…')
+  const courses = [
+    [IDS.courseMath, 'Mathématiques', 'M. Kodjo Aziaka', 8],
+    [IDS.courseFr, 'Français', 'Mme Adjoa Lawson', 10],
+    [IDS.coursePc, 'Physique-Chimie', 'Mme Essowè Bakoma', 13],
+    [IDS.courseSvt, 'SVT', 'M. Yao Kpodar', 10],
+    [IDS.courseAng, 'Anglais', 'Mme Julia Cole', 11],
+    [IDS.courseHg, 'Histoire-Géographie', 'M. Sena Amégan', 15],
+  ]
+  for (const [id, titre, enseignantNom, chapitres] of courses) {
+    await setDoc(doc(db, 'courses', id), {
+      titre,
+      matiere: titre,
+      description: `Cours de ${titre}`,
+      classeId: IDS.classe,
+      enseignantId: uids.enseignant,
+      enseignantNom,
+      chapitres,
+      ressources: [],
+      createdAt: t,
+    })
+  }
 
-  console.log('6) exercises…')
   await setDoc(doc(db, 'exercises', IDS.exerciseMath), {
-    titre: 'QCM — Équations',
-    description: 'Vérifie tes bases.',
+    titre: 'Suites arithmétiques',
+    matiere: 'Mathématiques',
+    competence: 'Suites numériques',
+    difficulte: 'Moyen',
+    status: 'en_cours',
     courseId: IDS.courseMath,
     enseignantId: uids.enseignant,
-    matiere: 'Mathématiques',
     questions: [
       {
         id: 'q0',
         type: 'qcm',
-        enonce: 'Quelle est la solution de 2x + 4 = 10 ?',
-        options: ['x = 2', 'x = 3', 'x = 4', 'x = 5'],
-        correctAnswer: 'x = 3',
-      },
-      {
-        id: 'q1',
-        type: 'vrai_faux',
-        enonce: "Dans ax + b = 0, si a = 0 et b ≠ 0, il n'y a pas de solution.",
-        correctAnswer: true,
-      },
-      {
-        id: 'q2',
-        type: 'court',
-        enonce: 'Résous : x - 5 = 2 (répondre avec le nombre seulement)',
-        correctAnswer: '7',
+        enonce: 'La raison d’une suite arithmétique u_n = 3 + 2n est :',
+        options: ['2', '3', '5', 'n'],
+        correctAnswer: '2',
       },
     ],
-    createdAt: now,
+    createdAt: t,
   })
-  await setDoc(doc(db, 'exercises', IDS.exerciseFr), {
-    titre: 'Vrai/Faux — Dissertation',
-    description: 'Notions de base.',
-    courseId: IDS.courseFr,
+  await setDoc(doc(db, 'exercises', IDS.exercisePc), {
+    titre: 'Circuits en série et dérivation',
+    matiere: 'Physique-Chimie',
+    competence: 'Électricité',
+    difficulte: 'Moyen',
+    status: 'termine',
+    courseId: IDS.coursePc,
     enseignantId: uids.enseignant,
-    matiere: 'Français',
     questions: [
       {
         id: 'q0',
         type: 'vrai_faux',
-        enonce: 'Une introduction de dissertation contient une problématique.',
+        enonce: 'En série, l’intensité est la même dans tout le circuit.',
         correctAnswer: true,
       },
     ],
-    createdAt: now,
+    createdAt: t,
   })
-
-  console.log('7) attempts…')
   await setDoc(doc(db, 'attempts', IDS.attempt), {
     eleveId: uids.eleve,
-    eleveNom: 'Awa Diallo',
-    exerciseId: IDS.exerciseMath,
-    courseId: IDS.courseMath,
+    eleveNom: 'Ava Mensah',
+    exerciseId: IDS.exercisePc,
+    courseId: IDS.coursePc,
     classeId: IDS.classe,
-    answers: { q0: 'x = 3', q1: true, q2: '7' },
-    score: 100,
-    scoreDetail: {
-      score: 3,
-      max: 3,
-      percent: 100,
-      details: [
-        { questionId: 'q0', correct: true },
-        { questionId: 'q1', correct: true },
-        { questionId: 'q2', correct: true },
-      ],
-    },
-    recommendation: "Continue sur les systèmes d'équations.",
-    analyse: 'Excellente maîtrise des équations simples.',
-    createdAt: now,
+    answers: { q0: true },
+    score: 78,
+    scoreDetail: { score: 1, max: 1, percent: 78, details: [{ questionId: 'q0', correct: true }] },
+    createdAt: t,
   })
 
-  console.log('8) tickets…')
-  await setDoc(doc(db, 'tickets', IDS.ticket), {
-    eleveId: uids.eleve,
-    eleveNom: 'Awa Diallo',
-    classeId: IDS.classe,
-    courseId: IDS.courseMath,
-    courseTitre: 'Équations du 1er degré',
-    exerciseId: IDS.exerciseMath,
-    message: 'Je bloque sur les équations avec fractions.',
-    status: 'ouvert',
-    createdAt: now,
-  })
+  console.log('4) progress, homework, tickets…')
+  const progresses = [
+    [IDS.progressMath, 'Mathématiques', 90, 85],
+    [IDS.progressFr, 'Français', 50, 50],
+    [IDS.progressSvt, 'SVT', 97, 89],
+    [IDS.progressAng, 'Anglais', 70, 65],
+    [IDS.progressPhil, 'Philosophie', 50, 50],
+    [IDS.progressPc, 'Physique-Chimie', 49, 55],
+  ]
+  for (const [id, matiere, percent, previousPercent] of progresses) {
+    const payload = {
+      eleveId: uids.eleve,
+      matiere,
+      percent,
+      maitrise: percent,
+      previousPercent,
+    }
+    if (matiere === 'Mathématiques') {
+      payload.topics = [
+        { titre: 'Fonctions et dérivées', percent: 78 },
+        { titre: 'Suites numériques', percent: 52 },
+        { titre: 'Probabilités', percent: 84 },
+      ]
+    }
+    await setDoc(doc(db, 'progress', id), payload)
+  }
 
-  console.log('9) progress…')
-  await setDoc(doc(db, 'progress', IDS.progressMath), {
-    eleveId: uids.eleve,
+  await setDoc(doc(db, 'homework', 'hw_math'), {
+    titre: 'Fonctions logarithmes',
     matiere: 'Mathématiques',
-    courseTitre: 'Équations du 1er degré',
-    percent: 85,
-    maitrise: 85,
-  })
-  await setDoc(doc(db, 'progress', IDS.progressFr), {
+    classeId: IDS.classe,
     eleveId: uids.eleve,
+    enseignantId: uids.enseignant,
+    echeance: 'Aujourd’hui',
+    status: 'a_faire',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'homework', 'hw_ang'), {
+    titre: 'Essai argumentatif',
+    matiere: 'Anglais',
+    classeId: IDS.classe,
+    eleveId: uids.eleve,
+    enseignantId: uids.enseignant,
+    echeance: 'Lundi',
+    status: 'a_venir',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'homework', 'hw_svt'), {
+    titre: 'Respiration cellulaire',
+    matiere: 'SVT',
+    classeId: IDS.classe,
+    eleveId: uids.eleve,
+    enseignantId: uids.enseignant,
+    echeance: 'Vendredi',
+    status: 'en_cours',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'homework', 'hw_fr_late'), {
+    titre: 'Dissertation — Français',
     matiere: 'Français',
-    courseTitre: 'Dissertation — intro',
-    percent: 60,
-    maitrise: 60,
+    classeId: IDS.classe,
+    eleveId: uids.eleve,
+    enseignantId: uids.enseignant,
+    echeance: 'Hier',
+    status: 'en_retard',
+    createdAt: t,
   })
 
-  console.log('10) school_announcements…')
+  await setDoc(doc(db, 'tickets', IDS.ticket1), {
+    eleveId: uids.eleve,
+    eleveNom: 'Ava Mensah',
+    classeId: IDS.classe,
+    classeNom: 'Terminale D',
+    courseId: IDS.courseMath,
+    notion: 'Suites géométriques',
+    matiere: 'Mathématiques',
+    message: 'Je bloque sur la raison d’une suite géométrique.',
+    status: 'en_cours',
+    priorite: 'normale',
+    enseignantNom: 'M. Aziaka',
+    assigneNom: 'Kodjo Aziaka',
+    steps: [
+      { label: 'Création', message: 'Ticket lié à la notion « Suites géométriques ».', done: true, at: 'Aujourd’hui 10:18' },
+      { label: 'Notification', message: 'M. Aziaka a été alerté.', done: true, at: 'Aujourd’hui 10:20' },
+      { label: 'Intervention', message: 'Séance de soutien prévue jeudi à 13h.', done: false, current: true, at: 'Aujourd’hui 11:05' },
+      { label: 'Suivi', message: 'En attente', done: false, at: '--' },
+      { label: 'Validation', message: 'En attente', done: false, at: '--' },
+      { label: 'Clôture', message: 'En attente', done: false, at: '--' },
+    ],
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'tickets', IDS.ticket2), {
+    eleveId: uids.eleve,
+    eleveNom: 'Ava Mensah',
+    classeId: IDS.classe,
+    classeNom: 'Terminale D',
+    notion: 'Équilibrage d’équations',
+    matiere: 'Physique-Chimie',
+    message: 'Besoin d’aide sur l’équilibrage.',
+    status: 'resolu',
+    priorite: 'normale',
+    enseignantNom: 'Mme Bakoma',
+    assigneNom: 'Sarah Adjowa',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'tickets', 'ticket_urgent'), {
+    eleveId: uids.eleve,
+    eleveNom: 'Ava Mensah',
+    classeId: IDS.classe,
+    classeNom: 'Terminale D',
+    notion: 'Géométrie dans l’espace',
+    matiere: 'Mathématiques',
+    message: 'Aucune réponse depuis 5 jours',
+    status: 'sans_reponse',
+    priorite: 'urgent',
+    assigneNom: 'Sarah Adjowa',
+    createdAt: t,
+  })
+
+  console.log('5) groupes, epreuves, revisions, erreurs…')
+  await setDoc(doc(db, 'groups', 'group_pc'), {
+    titre: 'Physique — TP du jeudi',
+    matiere: 'Physique-Chimie',
+    description: 'Préparation collective des comptes-rendus de travaux pratiques.',
+    memberIds: [uids.eleve],
+    membresCount: 9,
+    proposeIA: false,
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'groups', 'group_math'), {
+    titre: 'Terminale D — Maths entraide',
+    matiere: 'Mathématiques',
+    description: 'Groupe permanent de la classe pour s’entraider sur suites et fonctions.',
+    memberIds: [uids.eleve],
+    membresCount: 18,
+    proposeIA: false,
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'groups', 'group_ia_suites'), {
+    titre: 'Groupe temporaire — Suites géométriques',
+    matiere: 'Mathématiques',
+    description: '2 camarades ayant une bonne maîtrise peuvent t’aider à progresser.',
+    memberIds: [],
+    membresCount: 2,
+    proposeIA: true,
+    status: 'pending',
+    createdAt: t,
+  })
+
+  await setDoc(doc(db, 'epreuves', 'ep_pc'), {
+    type: 'Examen',
+    matiere: 'Physique-chimie',
+    niveau: 'Terminale D',
+    pays: 'Togo',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    titre: 'Bac blanc Physique',
+  })
+  await setDoc(doc(db, 'epreuves', 'ep_svt'), {
+    type: 'Examen',
+    matiere: 'SVT',
+    niveau: 'Terminale D',
+    pays: 'Togo',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    titre: 'Épreuve SVT',
+  })
+  await setDoc(doc(db, 'epreuves', 'ep_math'), {
+    type: 'Devoir',
+    matiere: 'Mathématiques',
+    niveau: 'Terminale D',
+    pays: 'Togo',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    titre: 'Devoir Suites',
+  })
+
+  await setDoc(doc(db, 'revisions', 'rev1'), {
+    eleveId: uids.eleve,
+    titre: 'Vocabulaire de la cellule (SVT)',
+    whenLabel: 'Aujourd’hui',
+    matiere: 'SVT',
+    count: 3,
+  })
+  await setDoc(doc(db, 'revisions', 'rev2'), {
+    eleveId: uids.eleve,
+    titre: 'Dérivées usuelles (Mathématiques)',
+    whenLabel: 'Demain',
+    matiere: 'Mathématiques',
+    count: 5,
+  })
+  await setDoc(doc(db, 'revisions', 'rev3'), {
+    eleveId: uids.eleve,
+    titre: 'Conjugaison — prétérit (Anglais)',
+    whenLabel: 'Dans 3 jours',
+    matiere: 'Anglais',
+    count: 4,
+  })
+
+  await setDoc(doc(db, 'frequent_errors', 'err1'), {
+    eleveId: uids.eleve,
+    titre: 'Confusion suite arithmétique / géométrique',
+    matiere: 'Mathématiques',
+    notion: 'Suites numériques',
+  })
+  await setDoc(doc(db, 'frequent_errors', 'err2'), {
+    eleveId: uids.eleve,
+    titre: 'Erreur de signe en dérivation',
+    matiere: 'Mathématiques',
+    notion: 'Fonctions et dérivées',
+  })
+  await setDoc(doc(db, 'frequent_errors', 'err3'), {
+    eleveId: uids.eleve,
+    titre: 'Accord du participe passé',
+    matiere: 'Français',
+    notion: 'Grammaire',
+  })
+
+  await setDoc(doc(db, 'tutor_sessions', 'ts1'), {
+    eleveId: uids.eleve,
+    titre: 'Fonctions et dérivées',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'tutor_sessions', 'ts2'), {
+    eleveId: uids.eleve,
+    titre: 'Probabilités conditionnelles',
+    createdAt: t,
+  })
+
+  console.log('6) teacher AI / programme / comprehension…')
+  await setDoc(doc(db, 'ai_contents', 'ai1'), {
+    notion: 'Suites géométriques',
+    type: "Série d'exercices",
+    apercu: '« Détermine la raison de la suite... »',
+    status: 'en_attente',
+    enseignantId: uids.enseignant,
+    classeId: IDS.classe,
+    matiere: 'Mathématiques',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'ai_contents', 'ai2'), {
+    notion: 'Dérivées composées',
+    type: 'Explication alternative',
+    apercu: '« Reprenons la règle de la chaîne... »',
+    status: 'en_attente',
+    enseignantId: uids.enseignant,
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'ai_contents', 'ai3'), {
+    notion: 'Probabilités',
+    type: 'Quiz de révision',
+    apercu: '« 8 questions à choix multiples... »',
+    status: 'en_attente',
+    enseignantId: uids.enseignant,
+    createdAt: t,
+  })
+
+  const chapters = [
+    ['ch1', 'Suites numériques', 'planifie', 'valides'],
+    ['ch2', 'Fonctions et dérivées', 'en_cours', 'valides'],
+    ['ch3', 'Probabilités conditionnelles', 'termine', 'valides'],
+    ['ch4', "Géométrie dans l'espace", 'a_planifier', 'en_attente'],
+  ]
+  for (const [id, titre, status, contenusIA] of chapters) {
+    await setDoc(doc(db, 'program_chapters', id), {
+      titre,
+      pays: 'TOGO',
+      niveau: 'Terminale D',
+      matiere: 'Mathématiques',
+      status,
+      contenusIA,
+      enseignantId: uids.enseignant,
+    })
+  }
+
+  const notions = [
+    ['c1', 'Suites géométriques', 24, 76],
+    ['c2', 'Dérivées composées', 41, 59],
+    ['c3', 'Probabilités conditionnelles', 12, 88],
+    ['c4', "Géométrie dans l'espace", 54, 46],
+  ]
+  for (const [id, notion, difficultePercent, maitrisePercent] of notions) {
+    await setDoc(doc(db, 'comprehension', id), {
+      notion,
+      classeId: IDS.classe,
+      classeNom: 'Terminale D',
+      matiere: 'Mathématiques',
+      difficultePercent,
+      maitrisePercent,
+      enseignantId: uids.enseignant,
+    })
+  }
+
+  console.log('7) messages, alerts, schedules, events, logs…')
+  await setDoc(doc(db, 'messages', 'msg1'), {
+    type: 'enseignant',
+    fromId: uids.enseignant,
+    fromNom: 'M. Kodjo Aziaka',
+    fromRole: 'Professeur de Mathématiques',
+    toId: uids.parent,
+    eleveId: uids.eleve,
+    preview: 'Je vous propose un point rapide jeudi sur les suites géométriques.',
+    lu: false,
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'messages', 'msg2'), {
+    type: 'administration',
+    fromNom: 'Administration',
+    toId: uids.parent,
+    eleveId: uids.eleve,
+    preview: 'Rappel : réunion parents-professeurs le 5 septembre',
+    lu: true,
+    createdAt: t,
+  })
+
+  await setDoc(doc(db, 'alerts', 'al1'), {
+    type: 'difficulte',
+    titre: 'Difficulté persistante détectée',
+    detail: 'Suites géométriques • Mathématiques',
+    eleveId: uids.eleve,
+    ecoleId: IDS.ecole,
+    status: 'Ticket ouvert',
+    priorite: 'haute',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'alerts', 'al2'), {
+    type: 'retard',
+    titre: 'Devoir en retard',
+    detail: 'Dissertation — Français, échéance dépassée de 1 jour',
+    eleveId: uids.eleve,
+    ecoleId: IDS.ecole,
+    status: 'À suivre',
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'alerts', 'al3'), {
+    type: 'admin',
+    titre: 'Notation difficile détectée sur 3 classes',
+    detail: "Géométrie dans l'espace",
+    ecoleId: IDS.ecole,
+    status: 'À surveiller',
+    createdAt: t,
+  })
+
+  await setDoc(doc(db, 'schedules', 'sch1'), {
+    classeId: IDS.classe,
+    jour: 'Lun',
+    debut: '7h00',
+    fin: '7h45',
+    matiere: 'Mathématiques',
+    enseignantNom: 'Mme Kouassi',
+    salle: 'Salle 203',
+    type: 'cours',
+  })
+  await setDoc(doc(db, 'schedules', 'sch2'), {
+    classeId: IDS.classe,
+    jour: 'Mar',
+    debut: '7h50',
+    fin: '8h35',
+    matiere: 'Histoire-Géo',
+    enseignantNom: 'M. Amégan',
+    salle: 'Salle 201',
+    type: 'examen',
+  })
+  await setDoc(doc(db, 'schedules', 'sch3'), {
+    classeId: IDS.classe,
+    jour: 'Mer',
+    debut: '9h40',
+    fin: '10h25',
+    matiere: 'EPS',
+    enseignantNom: 'M. Traoré',
+    salle: 'Gymnase',
+    type: 'activite',
+  })
+
+  await setDoc(doc(db, 'events', 'ev1'), {
+    titre: 'Réunion parents-professeurs',
+    dateLabel: '5 septembre, 16h00',
+    ecoleId: IDS.ecole,
+    classeId: IDS.classe,
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'events', 'ev2'), {
+    titre: 'Conseil de classe (Terminale D)',
+    dateLabel: '12 septembre, 15h00',
+    ecoleId: IDS.ecole,
+    classeId: IDS.classe,
+    createdAt: t,
+  })
+
+  await setDoc(doc(db, 'activity_logs', 'act1'), {
+    type: 'eleve',
+    message: 'Kossi A. en 2nde A inscrit',
+    ecoleId: IDS.ecole,
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'activity_logs', 'act2'), {
+    type: 'annonce',
+    message: 'Réunion parents – 26 mai publiée',
+    ecoleId: IDS.ecole,
+    createdAt: t,
+  })
+  await setDoc(doc(db, 'activity_logs', 'act3'), {
+    type: 'rapport',
+    message: 'Rapport mensuel – Mai 2025 exporté',
+    ecoleId: IDS.ecole,
+    createdAt: t,
+  })
+
   await setDoc(doc(db, 'school_announcements', IDS.announcement), {
     titre: 'Rentrée 2026',
-    title: 'Rentrée 2026',
     message: 'Bienvenue sur EduSphere. Les cours démarrent lundi.',
-    contenu: 'Bienvenue sur EduSphere. Les cours démarrent lundi.',
     ecoleId: IDS.ecole,
-    createdAt: now,
+    createdAt: t,
   })
 
   console.log('\n=== Seed terminé ===')
-  console.log(`Auth: ${authOk ? 'OK' : 'non configuré (UIDs démo)'}`)
-  if (authOk) {
-    console.log(`Mot de passe: ${PASSWORD}`)
-    for (const a of ACCOUNTS) console.log(`  ${a.role.padEnd(12)} ${a.email}`)
-  } else {
-    console.log('Active Authentication → Sign-in method → Email/Password, puis relance:')
-    console.log('  node scripts/seed-firestore.mjs')
-  }
+  console.log(`Auth: ${authOk ? 'OK' : 'UIDs démo'}`)
+  console.log(`Mot de passe: ${PASSWORD}`)
+  for (const a of ACCOUNTS) console.log(`  ${a.role.padEnd(12)} ${a.email}`)
   console.log('')
+  await signOut(auth).catch(() => {})
 }
 
 seed().catch((err) => {
-  console.error('\nÉchec du seed:', err.code || '', err.message)
-  if (err.code === 'permission-denied') {
-    console.error('→ Règles Firestore trop strictes. Passe en mode test ou autorise write temporairement.')
-  }
+  console.error('\nÉchec:', err.code || '', err.message)
   process.exit(1)
 })
