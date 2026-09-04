@@ -1,5 +1,18 @@
-# Vue 3 + TypeScript + Vite
+# Edusphere
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Plateforme éducative intelligente pour collèges et lycées — intégrée à **EDU OS**.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Structure
+
+- `FRONTEND/` — application Vue 3 + Vite + Firebase (Auth, Firestore, Storage, Functions)
+
+## Démarrage rapide
+
+```bash
+cd FRONTEND
+cp .env.example .env   # renseigner les clés Firebase
+npm install
+npm run dev
+```
+
+Voir `FRONTEND/README.md` pour le détail des rôles, routes et Cloud Functions.
