@@ -1,23 +1,6 @@
-<template>
+﻿<template>
   <div>
-    <header class="mb-8 flex items-start justify-between gap-4">
-      <div>
-        <h1 class="page-title">Bonjour {{ firstName }} 👋</h1>
-        <p class="page-sub">Voici où en est ta progression cette semaine.</p>
-      </div>
-      <button
-        type="button"
-        class="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10"
-        aria-label="Notifications"
-      >
-        <Bell class="h-5 w-5" />
-        <span
-          class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
-        >
-          2
-        </span>
-      </button>
-    </header>
+    <StudentPageHeader :title="`Bonjour ${firstName} 👋`" subtitle="Voici où en est ta progression cette semaine." />
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
@@ -25,14 +8,14 @@
         :value="String(stats.devoirs).padStart(2, '0')"
         hint="À terminer cette semaine"
         :icon="Calendar"
-        icon-bg="bg-blue-500/15"
-        icon-color="text-blue-300"
+        icon-bg="bg-blue-100"
+        icon-color="text-blue-600"
       />
       <div class="stat-card">
         <div class="mb-3 flex items-start justify-between">
           <div class="relative flex h-12 w-12 items-center justify-center">
             <svg class="h-12 w-12 -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
-              <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3" />
+              <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(15,23,42,0.08)" stroke-width="3" />
               <circle
                 cx="18"
                 cy="18"
@@ -45,40 +28,40 @@
               />
               <defs>
                 <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#8b5cf6" />
-                  <stop offset="100%" stop-color="#3b82f6" />
+                  <stop offset="0%" stop-color="#2563EB" />
+                  <stop offset="100%" stop-color="#60A5FA" />
                 </linearGradient>
               </defs>
             </svg>
-            <span class="absolute text-xs font-bold text-violet-200">{{ stats.progression }}%</span>
+            <span class="absolute text-xs font-bold text-blue-700">{{ stats.progression }}%</span>
           </div>
         </div>
-        <p class="text-xs uppercase tracking-wide text-white/45">Progression</p>
-        <p class="mt-1 font-display text-2xl font-bold">{{ stats.progression }}%</p>
-        <p class="mt-1 text-xs text-white/40">Bravo, continue !</p>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Progression</p>
+        <p class="mt-1 font-display text-2xl font-bold text-slate-900">{{ stats.progression }}%</p>
+        <p class="mt-1 text-xs text-slate-400">Bravo, continue !</p>
       </div>
       <StatCard
         label="Matière à réviser"
         :value="String(stats.revisions).padStart(2, '0')"
         hint="Chapitres identifiés"
         :icon="BookOpen"
-        icon-bg="bg-amber-500/15"
-        icon-color="text-amber-300"
+        icon-bg="bg-amber-100"
+        icon-color="text-amber-600"
       />
       <StatCard
         label="Streak"
         :value="`${stats.streak} j`"
         hint="Garde le rythme !"
         :icon="Flame"
-        icon-bg="bg-orange-500/15"
-        icon-color="text-orange-300"
+        icon-bg="bg-orange-100"
+        icon-color="text-orange-600"
       />
     </div>
 
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <div class="glass-card p-5">
-        <h2 class="mb-4 font-display text-lg font-semibold">Mes progrès par matière</h2>
-        <div v-if="!progressBySubject.length" class="text-sm text-white/40">
+        <h2 class="mb-4 font-display text-lg font-semibold text-slate-900">Mes progrès par matière</h2>
+        <div v-if="!progressBySubject.length" class="text-sm text-slate-400">
           Pas encore de données de progression.
         </div>
         <ul v-else class="space-y-4">
@@ -91,10 +74,10 @@
             </div>
             <div class="min-w-0 flex-1">
               <div class="mb-1 flex justify-between text-sm">
-                <span class="truncate">{{ p.matiere }}</span>
-                <span class="text-white/50">{{ p.percent }}%</span>
+                <span class="truncate font-medium text-slate-800">{{ p.matiere }}</span>
+                <span class="text-slate-500">{{ p.percent }}%</span>
               </div>
-              <div class="h-2 overflow-hidden rounded-full bg-white/10">
+              <div class="h-2 overflow-hidden rounded-full bg-slate-100">
                 <div
                   class="h-full rounded-full bg-gradient-to-r"
                   :class="subjectTheme(p.matiere).bar"
@@ -105,40 +88,40 @@
           </li>
         </ul>
         <div class="mt-5 text-center">
-          <RouterLink to="/student/progression" class="text-sm text-blue-400 hover:underline">
+          <RouterLink to="/student/progression" class="text-sm font-medium text-blue-600 hover:underline">
             Voir tous mes progrès &gt;
           </RouterLink>
         </div>
       </div>
 
-      <div class="glass-card flex flex-col border-violet-500/20 p-5">
+      <div class="glass-card flex flex-col border-blue-200 p-5">
         <div class="mb-3 flex items-center justify-between">
-          <h2 class="flex items-center gap-2 font-display text-lg font-semibold">
-            <Sparkles class="h-5 w-5 text-violet-300" /> Tuteur IA
+          <h2 class="flex items-center gap-2 font-display text-lg font-semibold text-slate-900">
+            <Sparkles class="h-5 w-5 text-blue-600" /> Tuteur IA
           </h2>
-          <span class="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+          <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
             IA EN LIGNE
           </span>
         </div>
 
         <div v-if="weakNotion" class="mb-4">
-          <p class="mb-2 text-xs text-white/45">Difficulté détectée :</p>
-          <span class="inline-flex rounded-full border border-violet-400/40 bg-violet-500/15 px-3 py-1 text-xs text-violet-200">
+          <p class="mb-2 text-xs text-slate-500">Difficulté détectée :</p>
+          <span class="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs text-blue-700">
             {{ weakNotion }}
           </span>
         </div>
 
         <div class="mb-4 flex flex-1 flex-col items-center justify-center py-2">
-          <p class="mb-1 text-xs text-white/45">Maîtrise estimée</p>
-          <p class="font-display text-4xl font-bold text-white">{{ weakMastery }}%</p>
-          <p class="mt-2 max-w-xs text-center text-sm text-white/50">
+          <p class="mb-1 text-xs text-slate-500">Maîtrise estimée</p>
+          <p class="font-display text-4xl font-bold text-slate-900">{{ weakMastery }}%</p>
+          <p class="mt-2 max-w-xs text-center text-sm text-slate-500">
             Consolidons ensemble cette notion pour passer au niveau supérieur.
           </p>
         </div>
 
         <RouterLink
           to="/student/tuteur"
-          class="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-5 py-3 font-semibold shadow-glow-purple"
+          class="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-3 font-semibold text-white shadow-glow"
         >
           Commencer une session →
         </RouterLink>
@@ -146,28 +129,40 @@
     </div>
 
     <div class="glass-card p-5">
-      <h2 class="mb-4 font-display text-lg font-semibold">À faire prochainement</h2>
-      <ul v-if="upcoming.length" class="divide-y divide-white/5">
+      <h2 class="mb-4 font-display text-lg font-semibold text-slate-900">À faire prochainement</h2>
+      <ul v-if="upcoming.length" class="divide-y divide-slate-100">
         <li
           v-for="item in upcoming"
           :key="item.id"
-          class="flex flex-wrap items-center justify-between gap-3 py-3"
+          class="flex flex-wrap items-center gap-3 py-3.5"
         >
-          <div class="min-w-0">
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+            :class="subjectTheme(item.matiere).bg + ' ' + subjectTheme(item.matiere).text"
+          >
+            {{ subjectTheme(item.matiere).glyph }}
+          </div>
+          <div class="min-w-0 flex-1">
             <p class="text-xs font-medium" :class="subjectTheme(item.matiere).text">
               {{ item.matiere || 'À faire' }}
             </p>
-            <p class="font-medium">{{ item.titre }}</p>
-            <p class="text-xs text-white/40">{{ item.dateLabel }}</p>
+            <p class="font-medium text-slate-900">{{ item.titre }}</p>
           </div>
-          <RouterLink :to="item.to" class="text-sm text-blue-400 hover:underline">
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-500">
+            <Calendar class="h-3.5 w-3.5" />
+            {{ item.dateLabel }}
+          </span>
+          <RouterLink
+            :to="item.to"
+            class="rounded-lg px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+          >
             Démarrer &gt;
           </RouterLink>
         </li>
       </ul>
-      <p v-else class="text-sm text-white/40">Rien de prévu pour le moment.</p>
+      <p v-else class="text-sm text-slate-400">Rien de prévu pour le moment.</p>
       <div class="mt-4 text-center">
-        <RouterLink to="/student/exercices" class="text-sm text-white/45 hover:text-white/70">
+        <RouterLink to="/student/exercices" class="text-sm text-slate-500 hover:text-slate-700">
           Voir toutes mes tâches ∨
         </RouterLink>
       </div>
@@ -186,8 +181,9 @@ import {
   limit,
   getDocs,
 } from 'firebase/firestore'
-import { Calendar, BookOpen, Flame, Sparkles, Bell } from 'lucide-vue-next'
+import { Calendar, BookOpen, Flame, Sparkles } from 'lucide-vue-next'
 import type { Unsubscribe } from 'firebase/firestore'
+import StudentPageHeader from '@/components/StudentPageHeader.vue'
 import StatCard from '@/components/StatCard.vue'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'

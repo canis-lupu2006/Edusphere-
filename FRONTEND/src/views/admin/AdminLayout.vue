@@ -4,6 +4,8 @@
     space-label="ADMINISTRATION"
     subtitle="Administratrice"
     accent="green"
+    root-class="bg-[#F3F7F5] text-slate-900"
+    bg-pattern="bg-edu-radial-admin"
   >
     <RouterView />
   </DashboardLayout>

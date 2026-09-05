@@ -1,52 +1,38 @@
-<template>
+﻿<template>
   <div>
-    <header class="mb-6 flex items-start justify-between gap-4">
-      <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-blue-400">
-          ESPACE ÉLÈVE
-        </p>
-        <h1 class="page-title">Mes cours</h1>
-        <p class="page-sub">Retrouve tes cours et continue ton apprentissage</p>
-      </div>
-      <button
-        type="button"
-        class="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10"
-        aria-label="Notifications"
-      >
-        <Bell class="h-5 w-5" />
-        <span
-          class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
-        >
-          2
-        </span>
-      </button>
-    </header>
+    <StudentPageHeader
+      title="Mes cours"
+      subtitle="Retrouve tes cours et continue ton apprentissage"
+    />
 
     <div class="mb-6 flex flex-wrap gap-3">
       <div class="relative min-w-[240px] flex-1">
-        <Search class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+        <Search class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           v-model="search"
           type="search"
-          class="input-field"
+          class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/15"
           placeholder="Rechercher un cours ou une matière..."
         />
       </div>
-      <select v-model="matiereFilter" class="input-field !w-auto !pl-4 min-w-[180px]">
+      <select
+        v-model="matiereFilter"
+        class="min-w-[180px] rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/15"
+      >
         <option value="">Toutes les matières</option>
         <option v-for="m in matieres" :key="m" :value="m">{{ m }}</option>
       </select>
     </div>
 
-    <div v-if="loading" class="py-12 text-center text-white/40">Chargement des cours…</div>
-    <div v-else-if="!filtered.length" class="glass-card py-12 text-center text-white/40">
+    <div v-if="loading" class="py-12 text-center text-slate-400">Chargement des cours…</div>
+    <div v-else-if="!filtered.length" class="glass-card py-12 text-center text-slate-400">
       Aucun cours trouvé.
     </div>
     <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <article
         v-for="course in filtered"
         :key="course.id"
-        class="glass-card flex flex-col rounded-2xl p-5 transition hover:border-white/20"
+        class="glass-card flex flex-col rounded-2xl p-5 transition hover:border-slate-300 hover:shadow-md"
       >
         <div
           class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl text-base font-bold"
@@ -54,7 +40,7 @@
         >
           {{ themeOf(course).glyph }}
         </div>
-        <h3 class="font-display text-lg font-semibold">
+        <h3 class="font-display text-lg font-semibold text-slate-900">
           {{ course.titre || course.matiere || 'Cours' }}
         </h3>
         <span
@@ -63,9 +49,9 @@
         >
           {{ String(chapterCount(course)).padStart(2, '0') }} chapitres
         </span>
-        <p class="mt-3 text-xs text-white/45">
+        <p class="mt-3 text-xs text-slate-500">
           Enseignant
-          <span class="ml-1 text-white/70">{{ course.enseignantNom || '—' }}</span>
+          <span class="ml-1 font-medium text-slate-700">{{ course.enseignantNom || '—' }}</span>
         </p>
         <div class="mt-auto pt-5">
           <RouterLink
@@ -86,8 +72,9 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import type { Unsubscribe } from 'firebase/firestore'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { Bell, Search } from 'lucide-vue-next'
+import { Search } from 'lucide-vue-next'
 import type { Course } from '@/types/models'
+import StudentPageHeader from '@/components/StudentPageHeader.vue'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
 import { subjectTheme } from '@/utils/subjectTheme'

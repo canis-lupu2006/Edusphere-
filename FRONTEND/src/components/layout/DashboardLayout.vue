@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen" :class="rootClass">
+  <div class="flex h-screen overflow-hidden" :class="rootClass">
     <AppSidebar
       :items="items"
       :space-label="spaceLabel"
@@ -8,9 +8,9 @@
       :logo-icon="logoIcon"
       :aside-class="asideClass"
     />
-    <main class="relative flex-1 overflow-y-auto">
+    <main class="relative min-h-0 flex-1 overflow-y-auto">
       <div
-        class="pointer-events-none absolute inset-0 opacity-30"
+        class="pointer-events-none absolute inset-0 opacity-100"
         :class="bgPattern"
         aria-hidden="true"
       />
@@ -41,7 +41,7 @@ withDefaults(
     spaceLabel: '',
     subtitle: '',
     accent: 'blue',
-    rootClass: 'bg-edu-bg text-white',
+    rootClass: 'bg-[#F5F8FC] text-slate-900',
     asideClass: '',
     bgPattern: 'bg-edu-radial',
   },

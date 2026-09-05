@@ -1,55 +1,39 @@
-<template>
+﻿<template>
   <div>
-    <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
-          ESPACE ÉLÈVE
-        </p>
-        <h1 class="page-title">Groupes d'entraide</h1>
-        <p class="page-sub">Rejoins un groupe permanent ou accepte une proposition d'aide de l'IA.</p>
-      </div>
-      <div class="flex items-center gap-3">
+    <StudentPageHeader
+      title="Groupes d'entraide"
+      subtitle="Rejoins un groupe permanent ou accepte une proposition d'aide de l'IA."
+    >
+      <template #actions>
         <button
           type="button"
-          class="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10"
-          aria-label="Notifications"
-        >
-          <Bell class="h-5 w-5" />
-          <span
-            class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
-          >
-            2
-          </span>
-        </button>
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-4 py-2.5 text-sm font-semibold shadow-glow-purple"
+          class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-glow"
           :disabled="creating"
           @click="createGroup"
         >
           <Plus class="h-4 w-4" />
           Créer un groupe
         </button>
-      </div>
-    </header>
+      </template>
+    </StudentPageHeader>
 
     <div class="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
       <!-- Tes groupes -->
       <section class="glass-card p-5">
         <h2 class="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
-          <Users class="h-5 w-5 text-blue-300" />
+          <Users class="h-5 w-5 text-blue-600" />
           Tes groupes
         </h2>
-        <div v-if="loading" class="py-8 text-center text-sm text-white/40">Chargement…</div>
+        <div v-if="loading" class="py-8 text-center text-sm text-slate-400">Chargement…</div>
         <ul v-else-if="myGroups.length" class="space-y-3">
           <li
             v-for="g in myGroups"
             :key="g.id"
-            class="relative rounded-xl border border-white/10 bg-white/[0.03] p-4"
+            class="relative rounded-xl border border-slate-200 bg-white p-4"
           >
             <button
               type="button"
-              class="absolute right-3 top-3 rounded-lg p-1 text-white/30 hover:bg-white/5 hover:text-white/60"
+              class="absolute right-3 top-3 rounded-lg p-1 text-slate-400 hover:bg-slate-50 hover:text-slate-900/60"
               aria-label="Options"
             >
               <MoreVertical class="h-4 w-4" />
@@ -63,15 +47,15 @@
               </div>
               <div class="min-w-0 flex-1 pr-6">
                 <h3 class="font-semibold">{{ g.titre || g.nom || 'Groupe' }}</h3>
-                <p class="mt-0.5 text-xs text-white/45">
+                <p class="mt-0.5 text-xs text-slate-500">
                   {{ g.matiere || 'Matière' }} • {{ memberCount(g) }} membres
                 </p>
-                <p class="mt-2 text-sm text-white/55">
+                <p class="mt-2 text-sm text-slate-500">
                   {{ g.description || 'Groupe d\'entraide.' }}
                 </p>
                 <button
                   type="button"
-                  class="mt-3 inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-white/80 transition hover:bg-white/5"
+                  class="mt-3 inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                   Voir le groupe &gt;
                 </button>
@@ -79,23 +63,23 @@
             </div>
           </li>
         </ul>
-        <p v-else class="text-sm text-white/40">Tu n'es membre d'aucun groupe pour le moment.</p>
+        <p v-else class="text-sm text-slate-400">Tu n'es membre d'aucun groupe pour le moment.</p>
       </section>
 
       <!-- Proposé par l'IA -->
-      <section class="glass-card border-violet-500/25 p-5">
-        <h2 class="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
-          <Sparkles class="h-5 w-5 text-violet-300" />
+      <section class="glass-card border-blue-200 p-5">
+        <h2 class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-slate-900">
+          <Sparkles class="h-5 w-5 text-blue-600" />
           Proposé par l'IA
         </h2>
-        <div v-if="aiProposal" class="rounded-xl border border-violet-500/20 bg-violet-500/5 p-4">
-          <div class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500/20 text-violet-300">
+        <div v-if="aiProposal" class="rounded-xl border border-blue-200 bg-blue-50/60 p-4">
+          <div class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
             <TrendingUp class="h-4 w-4" />
           </div>
           <h3 class="font-semibold">
             {{ aiProposal.titre || aiProposal.nom || 'Groupe temporaire' }}
           </h3>
-          <p class="mt-2 text-sm text-white/55">
+          <p class="mt-2 text-sm text-slate-500">
             {{
               aiProposal.description ||
               '2 camarades ayant une bonne maîtrise de cette notion peuvent t\'aider à progresser.'
@@ -104,7 +88,7 @@
           <div class="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
-              class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-medium transition hover:bg-white/10"
+              class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium transition hover:bg-slate-100"
               :disabled="acting"
               @click="refuseProposal"
             >
@@ -113,7 +97,7 @@
             </button>
             <button
               type="button"
-              class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-3 py-2.5 text-sm font-semibold shadow-glow-purple"
+              class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-3 py-2.5 text-sm font-semibold text-white shadow-glow"
               :disabled="acting"
               @click="acceptProposal"
             >
@@ -121,13 +105,13 @@
               Accepter
             </button>
           </div>
-          <p class="mt-4 flex items-start gap-2 text-xs text-white/40">
+          <p class="mt-4 flex items-start gap-2 text-xs text-slate-400">
             <Info class="mt-0.5 h-3.5 w-3.5 shrink-0" />
             Le groupe est temporaire et sera désactivé automatiquement dans
             {{ aiProposal.expiresInDays ?? 7 }} jours.
           </p>
         </div>
-        <p v-else class="text-sm text-white/40">Aucune proposition IA en attente.</p>
+        <p v-else class="text-sm text-slate-400">Aucune proposition IA en attente.</p>
       </section>
     </div>
   </div>
@@ -149,7 +133,6 @@ import {
   getDocs,
 } from 'firebase/firestore'
 import {
-  Bell,
   Plus,
   Users,
   Sparkles,
@@ -160,6 +143,7 @@ import {
   Info,
 } from 'lucide-vue-next'
 import type { Group } from '@/types/models'
+import StudentPageHeader from '@/components/StudentPageHeader.vue'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
 import { subjectTheme } from '@/utils/subjectTheme'

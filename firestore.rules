@@ -119,6 +119,16 @@ service cloud.firestore {
       allow write: if isRole('enseignant') || isAdminOrMinistere();
     }
 
+    match /programmes/{id} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+
+    match /program_versions/{id} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+
     match /comprehension/{id} {
       allow read: if signedIn();
       allow write: if isRole('enseignant') || isAdminOrMinistere();

@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-6">
-      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-600">
         PROFESSEUR
       </p>
       <h1 class="page-title">Programme & Planification</h1>
@@ -12,11 +12,11 @@
 
     <div class="glass-card mb-6 p-5">
       <h2 class="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
-        <Filter class="h-4 w-4 text-blue-300" />
+        <Filter class="h-4 w-4 text-blue-600" />
         Filtres du programme
       </h2>
       <div class="grid gap-4 sm:grid-cols-3">
-        <label class="block text-xs text-white/45">
+        <label class="block text-xs text-slate-500">
           Pays
           <select v-model="pays" class="input-field mt-1 !pl-4">
             <option>TOGO</option>
@@ -25,7 +25,7 @@
             <option>SENEGAL</option>
           </select>
         </label>
-        <label class="block text-xs text-white/45">
+        <label class="block text-xs text-slate-500">
           Niveau
           <select v-model="niveau" class="input-field mt-1 !pl-4">
             <option>Terminale D</option>
@@ -34,7 +34,7 @@
             <option>Seconde</option>
           </select>
         </label>
-        <label class="block text-xs text-white/45">
+        <label class="block text-xs text-slate-500">
           Matière
           <select v-model="matiere" class="input-field mt-1 !pl-4">
             <option>Mathématiques</option>
@@ -47,19 +47,19 @@
     </div>
 
     <div class="glass-card overflow-hidden">
-      <div class="border-b border-white/5 px-5 py-4">
+      <div class="border-b border-slate-100 px-5 py-4">
         <h2 class="flex items-center gap-2 font-display text-lg font-semibold">
-          <BookOpen class="h-4 w-4 text-blue-300" />
+          <BookOpen class="h-4 w-4 text-blue-600" />
           Chapitres du programme
         </h2>
       </div>
-      <div v-if="loading" class="p-8 text-center text-white/40">Chargement…</div>
-      <div v-else-if="!filtered.length" class="p-8 text-center text-white/40">
+      <div v-if="loading" class="p-8 text-center text-slate-400">Chargement…</div>
+      <div v-else-if="!filtered.length" class="p-8 text-center text-slate-400">
         Aucun chapitre pour ces filtres.
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left text-sm">
-          <thead class="border-b border-white/5 text-xs uppercase tracking-wide text-white/40">
+          <thead class="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th class="px-5 py-3 font-medium">Chapitre</th>
               <th class="px-5 py-3 font-medium">Statut</th>
@@ -68,7 +68,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-white/5">
-            <tr v-for="ch in filtered" :key="ch.id" class="hover:bg-white/[0.02]">
+            <tr v-for="ch in filtered" :key="ch.id" class="hover:bg-slate-50">
               <td class="px-5 py-3 font-medium">{{ ch.titre }}</td>
               <td class="px-5 py-3">
                 <span
@@ -78,12 +78,12 @@
                   {{ statusLabel(ch.status) }}
                 </span>
               </td>
-              <td class="px-5 py-3 text-white/70">
-                <span v-if="ch.contenusIA === 'valides'" class="inline-flex items-center gap-1.5 text-emerald-300">
+              <td class="px-5 py-3 text-slate-600">
+                <span v-if="ch.contenusIA === 'valides'" class="inline-flex items-center gap-1.5 text-emerald-700">
                   <CheckCircle2 class="h-3.5 w-3.5" />
                   Exercices IA validés
                 </span>
-                <span v-else class="inline-flex items-center gap-1.5 text-amber-300">
+                <span v-else class="inline-flex items-center gap-1.5 text-amber-600">
                   <Clock class="h-3.5 w-3.5" />
                   En attente de validation
                 </span>
@@ -91,7 +91,7 @@
               <td class="px-5 py-3">
                 <RouterLink
                   to="/teacher/contenus"
-                  class="inline-flex rounded-lg border border-blue-500/40 px-3 py-1.5 text-xs font-medium text-blue-300 transition hover:bg-blue-500/10"
+                  class="inline-flex rounded-lg border border-blue-500/40 px-3 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-500/10"
                 >
                   Ouvrir
                 </RouterLink>
@@ -143,12 +143,12 @@ function statusLabel(s?: ChapterStatus) {
 
 function statusBadge(s?: ChapterStatus) {
   const map: Record<string, string> = {
-    planifie: 'bg-blue-500/20 text-blue-300',
-    en_cours: 'bg-amber-500/20 text-amber-300',
-    termine: 'bg-emerald-500/20 text-emerald-300',
-    a_planifier: 'bg-white/10 text-white/50',
+    planifie: 'bg-blue-500/20 text-blue-600',
+    en_cours: 'bg-amber-500/20 text-amber-600',
+    termine: 'bg-emerald-500/20 text-emerald-700',
+    a_planifier: 'bg-slate-100 text-slate-500',
   }
-  return map[s || ''] || 'bg-white/10 text-white/50'
+  return map[s || ''] || 'bg-slate-100 text-slate-500'
 }
 
 onMounted(async () => {

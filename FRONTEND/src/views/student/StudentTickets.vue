@@ -1,52 +1,36 @@
-<template>
+﻿<template>
   <div>
-    <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-blue-400">
-          ESPACE ÉLÈVE
-        </p>
-        <h1 class="page-title">Mes tickets</h1>
-        <p class="page-sub">Le pont entre l'accompagnement automatisé et l'intervention humaine.</p>
-      </div>
-      <div class="flex items-center gap-3">
+    <StudentPageHeader
+      title="Mes tickets"
+      subtitle="Le pont entre l'accompagnement automatisé et l'intervention humaine."
+    >
+      <template #actions>
         <button
           type="button"
-          class="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10"
-          aria-label="Notifications"
-        >
-          <Bell class="h-5 w-5" />
-          <span
-            class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
-          >
-            2
-          </span>
-        </button>
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-4 py-2.5 text-sm font-semibold shadow-glow-purple"
+          class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-glow"
           :disabled="creating"
           @click="createTicket"
         >
           Nouveau ticket +
         </button>
-      </div>
-    </header>
+      </template>
+    </StudentPageHeader>
 
     <div class="grid gap-4 lg:grid-cols-2">
       <!-- Liste -->
       <section class="glass-card overflow-hidden">
-        <div class="flex items-center gap-2 border-b border-white/10 px-5 py-4">
-          <FileText class="h-4 w-4 text-blue-300" />
+        <div class="flex items-center gap-2 border-b border-slate-200 px-5 py-4">
+          <FileText class="h-4 w-4 text-blue-600" />
           <h2 class="font-display text-base font-semibold">Requêtes effectuées</h2>
         </div>
-        <div v-if="loading" class="py-10 text-center text-sm text-white/40">Chargement…</div>
-        <div v-else-if="!tickets.length" class="py-10 text-center text-sm text-white/40">
+        <div v-if="loading" class="py-10 text-center text-sm text-slate-400">Chargement…</div>
+        <div v-else-if="!tickets.length" class="py-10 text-center text-sm text-slate-400">
           Aucun ticket pour le moment.
         </div>
         <div v-else class="overflow-x-auto">
           <table class="w-full min-w-[480px] text-left text-sm">
             <thead>
-              <tr class="border-b border-white/10 text-[10px] uppercase tracking-wider text-blue-300/70">
+              <tr class="border-b border-slate-200 text-[10px] uppercase tracking-wider text-blue-600/70">
                 <th class="px-5 py-3 font-semibold">Notion</th>
                 <th class="px-3 py-3 font-semibold">Matière</th>
                 <th class="px-3 py-3 font-semibold">Statut</th>
@@ -58,8 +42,8 @@
               <tr
                 v-for="t in tickets"
                 :key="t.id"
-                class="cursor-pointer border-b border-white/5 transition hover:bg-white/[0.03]"
-                :class="selectedId === t.id ? 'bg-blue-500/10' : ''"
+                class="cursor-pointer border-b border-slate-100 transition hover:bg-white"
+                :class="selectedId === t.id ? 'bg-blue-50' : ''"
                 @click="selectedId = t.id"
               >
                 <td class="px-5 py-3.5 font-medium">{{ t.notion || t.message || '—' }}</td>
@@ -71,7 +55,7 @@
                     >
                       {{ subjectTheme(t.matiere).glyph }}
                     </span>
-                    <span class="text-white/70">{{ t.matiere || '—' }}</span>
+                    <span class="text-slate-600">{{ t.matiere || '—' }}</span>
                   </div>
                 </td>
                 <td class="px-3 py-3.5">
@@ -85,15 +69,15 @@
                 <td class="px-3 py-3.5">
                   <div class="flex items-center gap-2">
                     <span
-                      class="flex h-7 w-7 items-center justify-center rounded-full bg-violet-500/25 text-[10px] font-bold text-violet-200"
+                      class="flex h-7 w-7 items-center justify-center rounded-full bg-violet-500/25 text-[10px] font-bold text-violet-700"
                     >
                       {{ teacherInitials(t) }}
                     </span>
-                    <span class="text-white/70">{{ teacherName(t) }}</span>
+                    <span class="text-slate-600">{{ teacherName(t) }}</span>
                   </div>
                 </td>
                 <td class="pr-4">
-                  <ChevronRight class="h-4 w-4 text-white/30" />
+                  <ChevronRight class="h-4 w-4 text-slate-400" />
                 </td>
               </tr>
             </tbody>
@@ -122,19 +106,19 @@
               </div>
               <div
                 v-if="i < timeline.length - 1"
-                class="absolute top-7 h-full w-px bg-white/10"
+                class="absolute top-7 h-full w-px bg-slate-100"
               />
             </div>
             <div class="min-w-0 flex-1 pt-0.5">
-              <p class="text-xs font-semibold uppercase tracking-wide text-white/45">
+              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 {{ step.label }}
               </p>
-              <p class="mt-0.5 text-sm text-white/80">{{ step.description }}</p>
-              <p v-if="step.at" class="mt-1 text-xs text-white/35">{{ step.at }}</p>
+              <p class="mt-0.5 text-sm text-slate-700">{{ step.description }}</p>
+              <p v-if="step.at" class="mt-1 text-xs text-slate-400">{{ step.at }}</p>
             </div>
           </li>
         </ol>
-        <p v-else class="text-sm text-white/40">Sélectionne une requête pour voir le suivi.</p>
+        <p v-else class="text-sm text-slate-400">Sélectionne une requête pour voir le suivi.</p>
       </section>
     </div>
   </div>
@@ -151,8 +135,9 @@ import {
   addDoc,
   serverTimestamp,
 } from 'firebase/firestore'
-import { Bell, FileText, ChevronRight, Check } from 'lucide-vue-next'
+import { FileText, ChevronRight, Check } from 'lucide-vue-next'
 import type { Ticket, TicketStatus, TicketStep } from '@/types/models'
+import StudentPageHeader from '@/components/StudentPageHeader.vue'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
 import { subjectTheme } from '@/utils/subjectTheme'
@@ -199,9 +184,9 @@ function statusLabel(s?: TicketStatus) {
 
 function statusBadge(s?: TicketStatus) {
   const label = statusLabel(s)
-  if (label === 'Résolu') return 'bg-violet-500/15 text-violet-300'
-  if (label === 'En cours') return 'bg-emerald-500/15 text-emerald-300'
-  return 'bg-blue-500/15 text-blue-300'
+  if (label === 'Résolu') return 'bg-violet-100 text-violet-600'
+  if (label === 'En cours') return 'bg-emerald-100 text-emerald-700'
+  return 'bg-blue-100 text-blue-600'
 }
 
 function teacherName(t: Ticket) {
@@ -271,7 +256,7 @@ function syntheticTimeline(t: Ticket): TimelineStep[] {
 function stepCircle(step: TimelineStep) {
   if (step.done) return 'bg-emerald-500 text-white'
   if (step.active) return 'bg-blue-500 text-white ring-4 ring-blue-500/30'
-  return 'border-2 border-white/20 bg-transparent text-transparent'
+  return 'border-2 border-slate-200 bg-transparent text-transparent'
 }
 
 onMounted(() => {

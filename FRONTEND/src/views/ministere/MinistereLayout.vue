@@ -1,6 +1,6 @@
 <template>
-  <div class="flex min-h-screen bg-[#f4f7f5] text-[#0f1f17]">
-    <aside class="flex h-screen w-64 shrink-0 flex-col border-r border-emerald-900/10 bg-white">
+  <div class="flex h-screen overflow-hidden bg-[#f4f7f5] text-[#0f1f17]">
+    <aside class="flex h-full w-64 shrink-0 flex-col border-r border-emerald-900/10 bg-white">
       <div class="px-5 py-5">
         <div class="flex items-center gap-3">
           <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#166534] text-white">
@@ -58,7 +58,7 @@
       </div>
     </aside>
 
-    <div class="flex min-w-0 flex-1 flex-col">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col">
       <header
         class="flex flex-wrap items-center gap-3 border-b border-emerald-900/10 bg-white px-5 py-3 md:px-8"
       >
@@ -79,7 +79,7 @@
         </div>
       </header>
 
-      <main class="flex-1 overflow-y-auto px-5 py-6 md:px-8">
+      <main class="min-h-0 flex-1 overflow-y-auto px-5 py-6 md:px-8">
         <RouterView />
       </main>
     </div>

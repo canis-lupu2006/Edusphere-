@@ -4,6 +4,8 @@
     space-label="PROFESSEUR"
     :subtitle="'Professeur'"
     accent="purple"
+    root-class="bg-[#F7F6FB] text-slate-900"
+    bg-pattern="bg-edu-radial-teacher"
   >
     <RouterView />
   </DashboardLayout>

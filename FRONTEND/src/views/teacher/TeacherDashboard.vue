@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-8">
-      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-indigo-600">
         PROFESSEUR
       </p>
       <h1 class="page-title">Bonjour {{ firstName }}</h1>
@@ -15,6 +15,8 @@
           :value="classeIds.length"
           hint="Classes suivies"
           :icon="GraduationCap"
+          icon-bg="bg-indigo-100"
+          icon-color="text-indigo-600"
         />
       </RouterLink>
       <RouterLink to="/teacher/tickets" class="block transition hover:brightness-110">
@@ -23,8 +25,8 @@
           :value="openTickets.length"
           hint="Temps réel"
           :icon="MessageSquare"
-          icon-bg="bg-teal-500/15"
-          icon-color="text-teal-300"
+          icon-bg="bg-teal-100"
+          icon-color="text-teal-700"
         />
       </RouterLink>
       <RouterLink to="/teacher/contenus" class="block transition hover:brightness-110">
@@ -33,8 +35,8 @@
           :value="pendingAi"
           hint="En attente"
           :icon="Sparkles"
-          icon-bg="bg-violet-500/15"
-          icon-color="text-violet-300"
+          icon-bg="bg-violet-100"
+          icon-color="text-violet-600"
         />
       </RouterLink>
       <RouterLink to="/teacher/devoirs" class="block transition hover:brightness-110">
@@ -43,8 +45,8 @@
           :value="homeworkCount"
           hint="Publiés"
           :icon="ClipboardList"
-          icon-bg="bg-amber-500/15"
-          icon-color="text-amber-300"
+          icon-bg="bg-amber-100"
+          icon-color="text-amber-600"
         />
       </RouterLink>
     </div>
@@ -53,7 +55,7 @@
       <div class="glass-card p-5">
         <div class="mb-4 flex items-center justify-between">
           <h2 class="font-display text-lg font-semibold">Tickets ouverts</h2>
-          <RouterLink to="/teacher/tickets" class="text-sm text-blue-400">Voir tout →</RouterLink>
+          <RouterLink to="/teacher/tickets" class="text-sm text-indigo-600">Voir tout →</RouterLink>
         </div>
         <TicketList :tickets="openTickets.slice(0, 5)" :resolvable="true" @resolve="resolveTicket" />
       </div>
@@ -62,35 +64,35 @@
         <h2 class="font-display text-lg font-semibold">Accès rapides</h2>
         <RouterLink
           to="/teacher/comprehension"
-          class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10"
+          class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition hover:bg-slate-100"
         >
-          <GraduationCap class="h-4 w-4 text-blue-300" />
+          <GraduationCap class="h-4 w-4 text-indigo-600" />
           Compréhension de la classe
         </RouterLink>
         <RouterLink
           to="/teacher/programme"
-          class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10"
+          class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition hover:bg-slate-100"
         >
-          <Calendar class="h-4 w-4 text-blue-300" />
+          <Calendar class="h-4 w-4 text-indigo-600" />
           Programme & Planification
         </RouterLink>
         <RouterLink
           to="/teacher/contenus"
-          class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10"
+          class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition hover:bg-slate-100"
         >
-          <Sparkles class="h-4 w-4 text-violet-300" />
+          <Sparkles class="h-4 w-4 text-violet-600" />
           Contenus & Validation IA
         </RouterLink>
         <RouterLink
           to="/teacher/devoirs"
-          class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10"
+          class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition hover:bg-slate-100"
         >
-          <ClipboardList class="h-4 w-4 text-amber-300" />
+          <ClipboardList class="h-4 w-4 text-amber-600" />
           Devoirs & Évaluations
         </RouterLink>
 
-        <div v-if="summary" class="mt-4 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-sm text-white/70">
-          <p class="mb-1 font-semibold text-violet-300">Résumé IA</p>
+        <div v-if="summary" class="mt-4 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-sm text-slate-600">
+          <p class="mb-1 font-semibold text-violet-600">Résumé IA</p>
           <p class="whitespace-pre-wrap">{{ summary }}</p>
         </div>
         <button

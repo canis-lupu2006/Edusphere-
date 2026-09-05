@@ -1,21 +1,21 @@
-<template>
+﻿<template>
   <div>
     <button
       type="button"
-      class="mb-4 inline-flex items-center gap-2 text-sm text-white/50 hover:text-white"
+      class="mb-4 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900"
       @click="$router.push('/student/cours')"
     >
       <ArrowLeft class="h-4 w-4" /> Mes cours
     </button>
 
-    <div v-if="loading" class="py-16 text-center text-white/40">Chargement…</div>
-    <div v-else-if="!course" class="glass-card py-12 text-center text-white/40">
+    <div v-if="loading" class="py-16 text-center text-slate-400">Chargement…</div>
+    <div v-else-if="!course" class="glass-card py-12 text-center text-slate-400">
       Cours introuvable.
     </div>
     <template v-else>
       <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p class="text-xs text-blue-400">{{ course.matiere }}</p>
+          <p class="text-xs text-blue-600">{{ course.matiere }}</p>
           <h1 class="page-title">{{ course.titre }}</h1>
           <p v-if="course.description" class="page-sub max-w-2xl">{{ course.description }}</p>
         </div>
@@ -32,14 +32,14 @@
               :href="r.url"
               target="_blank"
               rel="noopener"
-              class="flex items-center gap-2 text-sm text-blue-300 hover:underline"
+              class="flex items-center gap-2 text-sm text-blue-600 hover:underline"
             >
               <FileText class="h-4 w-4" />
               {{ r.titre || r.name || r.url }}
             </a>
           </li>
         </ul>
-        <p v-else class="text-sm text-white/40">Aucune ressource pour ce cours.</p>
+        <p v-else class="text-sm text-slate-400">Aucune ressource pour ce cours.</p>
       </section>
 
       <section class="glass-card p-5">
@@ -51,12 +51,12 @@
             class="flex items-center justify-between py-3"
           >
             <span>{{ ex.titre }}</span>
-            <RouterLink :to="`/student/exercices/${ex.id}`" class="text-sm text-blue-400">
+            <RouterLink :to="`/student/exercices/${ex.id}`" class="text-sm text-blue-600">
               Ouvrir →
             </RouterLink>
           </li>
         </ul>
-        <p v-else class="text-sm text-white/40">Aucun exercice.</p>
+        <p v-else class="text-sm text-slate-400">Aucun exercice.</p>
       </section>
     </template>
 
@@ -70,7 +70,7 @@
         <textarea
           v-model="ticketMsg"
           rows="4"
-          class="mt-3 w-full rounded-xl border border-white/10 bg-[#0d1424] p-3 text-sm outline-none"
+          class="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none"
           placeholder="Explique ta difficulté…"
         />
         <div class="mt-4 flex justify-end gap-2">

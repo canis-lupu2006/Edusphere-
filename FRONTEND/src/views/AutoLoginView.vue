@@ -1,18 +1,18 @@
 <template>
   <div
-    class="flex min-h-screen items-center justify-center bg-edu-bg bg-edu-radial px-4 py-10"
+    class="flex min-h-screen items-center justify-center bg-[#F5F8FC] bg-edu-radial px-4 py-10 text-slate-900"
   >
     <div class="w-full max-w-md text-center">
       <div
-        class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-blue-400/30 bg-blue-500/10 shadow-glow"
+        class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-blue-200 bg-blue-50 shadow-glow"
       >
-        <Loader2 class="h-8 w-8 animate-spin text-blue-400" />
+        <Loader2 class="h-8 w-8 animate-spin text-blue-600" />
       </div>
-      <h1 class="font-display text-xl font-semibold">Connexion EDU OS…</h1>
-      <p class="mt-2 text-sm text-white/50">
+      <h1 class="font-display text-xl font-semibold text-slate-900">Connexion EDU OS…</h1>
+      <p class="mt-2 text-sm text-slate-500">
         Authentification automatique en cours. Veuillez patienter.
       </p>
-      <p v-if="errorMsg" class="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">
+      <p v-if="errorMsg" class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
         {{ errorMsg }}
       </p>
     </div>

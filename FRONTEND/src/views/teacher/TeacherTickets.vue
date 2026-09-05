@@ -1,8 +1,8 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-600">
           PROFESSEUR
         </p>
         <h1 class="page-title">Tickets</h1>
@@ -18,8 +18,8 @@
       </div>
     </header>
 
-    <div v-if="summary" class="glass-card mb-6 border-violet-500/20 p-4 text-sm text-white/70">
-      <p class="mb-1 font-semibold text-violet-300">Résumé IA</p>
+    <div v-if="summary" class="glass-card mb-6 border-violet-500/20 p-4 text-sm text-slate-600">
+      <p class="mb-1 font-semibold text-violet-600">Résumé IA</p>
       <p class="whitespace-pre-wrap">{{ summary }}</p>
     </div>
 

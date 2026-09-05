@@ -1,14 +1,14 @@
-<template>
+﻿<template>
   <div>
-    <div v-if="loading" class="py-12 text-center text-white/40">Chargement des cours…</div>
-    <div v-else-if="!filtered.length" class="glass-card py-12 text-center text-white/40">
+    <div v-if="loading" class="py-12 text-center text-slate-400">Chargement des cours…</div>
+    <div v-else-if="!filtered.length" class="glass-card py-12 text-center text-slate-400">
       Aucun cours trouvé.
     </div>
     <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <article
         v-for="course in filtered"
         :key="course.id"
-        class="glass-card flex flex-col p-5 transition hover:border-white/20"
+        class="glass-card flex flex-col p-5 transition hover:border-slate-200"
       >
         <div
           class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-lg font-bold"
@@ -17,11 +17,11 @@
           {{ (course.matiere || course.titre || '?').slice(0, 1).toUpperCase() }}
         </div>
         <h3 class="font-display text-lg font-semibold">{{ course.titre || course.matiere }}</h3>
-        <p class="mt-1 text-xs text-white/45">
+        <p class="mt-1 text-xs text-slate-500">
           {{ course.matiere }}
           <span v-if="course.enseignantNom"> · {{ course.enseignantNom }}</span>
         </p>
-        <p v-if="course.description" class="mt-2 line-clamp-2 text-sm text-white/50">
+        <p v-if="course.description" class="mt-2 line-clamp-2 text-sm text-slate-500">
           {{ course.description }}
         </p>
         <div class="mt-auto pt-4">

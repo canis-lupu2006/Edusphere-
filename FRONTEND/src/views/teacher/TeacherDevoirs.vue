@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-6">
-      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-600">
         PROFESSEUR
       </p>
       <h1 class="page-title">Devoirs & Évaluations</h1>
@@ -27,15 +27,15 @@
       <button type="submit" class="btn-primary text-sm" :disabled="saving">
         {{ saving ? 'Enregistrement…' : 'Créer le devoir' }}
       </button>
-      <p v-if="msg" class="text-sm text-emerald-300">{{ msg }}</p>
+      <p v-if="msg" class="text-sm text-emerald-700">{{ msg }}</p>
     </form>
 
     <div class="glass-card overflow-hidden">
-      <div class="border-b border-white/5 px-5 py-4">
+      <div class="border-b border-slate-100 px-5 py-4">
         <h2 class="font-display text-lg font-semibold">Mes devoirs</h2>
       </div>
-      <div v-if="loading" class="p-8 text-center text-white/40">Chargement…</div>
-      <div v-else-if="!items.length" class="p-8 text-center text-white/40">
+      <div v-if="loading" class="p-8 text-center text-slate-400">Chargement…</div>
+      <div v-else-if="!items.length" class="p-8 text-center text-slate-400">
         Aucun devoir pour le moment.
       </div>
       <ul v-else class="divide-y divide-white/5">
@@ -46,12 +46,12 @@
         >
           <div>
             <p class="font-medium">{{ h.titre }}</p>
-            <p class="text-xs text-white/40">
+            <p class="text-xs text-slate-400">
               {{ h.matiere }} · {{ h.classeId }} · échéance {{ h.echeance }}
             </p>
           </div>
           <span
-            class="rounded-full bg-blue-500/15 px-2.5 py-0.5 text-xs font-semibold text-blue-300"
+            class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-600"
           >
             {{ h.status || 'a_faire' }}
           </span>

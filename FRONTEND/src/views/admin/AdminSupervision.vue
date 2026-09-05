@@ -1,44 +1,44 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
           ADMINISTRATION
         </p>
         <h1 class="page-title">Supervision des tickets</h1>
         <p class="page-sub">Suivi et assignation des demandes d'aide.</p>
       </div>
       <div class="relative min-w-[14rem]">
-        <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+        <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input v-model="search" class="input-field" placeholder="Rechercher un élève…" />
       </div>
     </header>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-3">
       <div class="glass-card flex items-center gap-3 p-4">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
           <FilePlus class="h-5 w-5" />
         </div>
         <div>
-          <p class="text-xs uppercase tracking-wide text-white/45">Nouveaux</p>
+          <p class="text-xs uppercase tracking-wide text-slate-500">Nouveaux</p>
           <p class="font-display text-2xl font-bold">{{ counts.nouveaux }}</p>
         </div>
       </div>
       <div class="glass-card flex items-center gap-3 p-4">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-300">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
           <Clock class="h-5 w-5" />
         </div>
         <div>
-          <p class="text-xs uppercase tracking-wide text-white/45">En retard</p>
+          <p class="text-xs uppercase tracking-wide text-slate-500">En retard</p>
           <p class="font-display text-2xl font-bold">{{ counts.retard }}</p>
         </div>
       </div>
       <div class="glass-card flex items-center gap-3 p-4">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/15 text-red-300">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600">
           <AlertTriangle class="h-5 w-5" />
         </div>
         <div>
-          <p class="text-xs uppercase tracking-wide text-white/45">Urgents</p>
+          <p class="text-xs uppercase tracking-wide text-slate-500">Urgents</p>
           <p class="font-display text-2xl font-bold">{{ counts.urgents }}</p>
         </div>
       </div>
@@ -67,7 +67,7 @@
 
     <div class="glass-card overflow-x-auto">
       <table class="w-full text-left text-sm">
-        <thead class="border-b border-white/10 text-[11px] uppercase tracking-wide text-white/45">
+        <thead class="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
           <tr>
             <th class="px-4 py-3">Élève</th>
             <th class="px-4 py-3">Notion</th>
@@ -79,7 +79,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="t in filtered" :key="t.id" class="border-b border-white/5">
+          <tr v-for="t in filtered" :key="t.id" class="border-b border-slate-100">
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
                 <div
@@ -90,8 +90,8 @@
                 <span class="font-medium">{{ t.eleveNom || '—' }}</span>
               </div>
             </td>
-            <td class="px-4 py-3 text-white/70">{{ t.notion || '—' }}</td>
-            <td class="px-4 py-3 text-white/70">{{ t.classeNom || '—' }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ t.notion || '—' }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ t.classeNom || '—' }}</td>
             <td class="px-4 py-3">
               <select
                 :value="t.status || 'ouvert'"
@@ -112,18 +112,18 @@
                 class="rounded-full border px-2.5 py-0.5 text-[11px] font-medium"
                 :class="
                   t.priorite === 'urgent'
-                    ? 'border-red-500/40 text-red-300'
-                    : 'border-blue-500/40 text-blue-300'
+                    ? 'border-red-500/40 text-red-600'
+                    : 'border-blue-500/40 text-blue-600'
                 "
               >
                 {{ t.priorite === 'urgent' ? 'Urgent' : 'Normale' }}
               </span>
             </td>
-            <td class="px-4 py-3 text-white/70">{{ t.assigneNom || '—' }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ t.assigneNom || '—' }}</td>
             <td class="px-4 py-3">
               <button
                 type="button"
-                class="text-xs text-emerald-400 hover:underline"
+                class="text-xs text-emerald-700 hover:underline"
                 @click="assignTicket(t)"
               >
                 Assigner
@@ -131,7 +131,7 @@
             </td>
           </tr>
           <tr v-if="!filtered.length">
-            <td colspan="7" class="px-4 py-10 text-center text-white/40">Aucun ticket.</td>
+            <td colspan="7" class="px-4 py-10 text-center text-slate-400">Aucun ticket.</td>
           </tr>
         </tbody>
       </table>
@@ -197,11 +197,11 @@ function initials(name?: string) {
 
 function statusClass(status?: string) {
   const s = String(status || '').toLowerCase()
-  if (s === 'intervention' || s === 'en_cours') return 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300'
-  if (s === 'sans_reponse') return 'border-red-500/30 bg-red-500/15 text-red-300'
-  if (s === 'nouveau' || s === 'ouvert') return 'border-amber-500/30 bg-amber-500/15 text-amber-300'
-  if (s === 'resolu') return 'border-white/10 bg-white/5 text-white/50'
-  return 'border-white/10 bg-white/5 text-white/70'
+  if (s === 'intervention' || s === 'en_cours') return 'border-emerald-500/30 bg-emerald-100 text-emerald-700'
+  if (s === 'sans_reponse') return 'border-red-500/30 bg-red-100 text-red-600'
+  if (s === 'nouveau' || s === 'ouvert') return 'border-amber-500/30 bg-amber-100 text-amber-600'
+  if (s === 'resolu') return 'border-slate-200 bg-slate-50 text-slate-500'
+  return 'border-slate-200 bg-slate-50 text-slate-600'
 }
 
 function refreshCounts() {

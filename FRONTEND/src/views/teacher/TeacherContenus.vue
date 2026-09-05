@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-6">
-      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+      <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-600">
         PROFESSEUR
       </p>
       <h1 class="page-title">Contenus & Validation IA</h1>
@@ -15,39 +15,39 @@
       <label
         class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-blue-500/30 bg-blue-500/5 px-6 py-10 text-center transition hover:border-blue-400/50 hover:bg-blue-500/10"
       >
-        <UploadCloud class="h-8 w-8 text-blue-400" />
-        <p class="text-sm text-white/70">
+        <UploadCloud class="h-8 w-8 text-blue-600" />
+        <p class="text-sm text-slate-600">
           Glissez vos fichiers ici, ou
-          <span class="font-semibold text-blue-400">parcourez votre ordinateur</span>
+          <span class="font-semibold text-blue-600">parcourez votre ordinateur</span>
         </p>
-        <p class="text-xs text-white/40">PDF, vidéos, liens et notes de cours</p>
+        <p class="text-xs text-slate-400">PDF, vidéos, liens et notes de cours</p>
         <input type="file" class="hidden" @change="onFile" />
       </label>
-      <p v-if="uploadMsg" class="mt-3 text-sm" :class="uploadOk ? 'text-emerald-300' : 'text-red-300'">
+      <p v-if="uploadMsg" class="mt-3 text-sm" :class="uploadOk ? 'text-emerald-700' : 'text-red-600'">
         {{ uploadMsg }}
       </p>
-      <p v-if="uploading" class="mt-2 text-sm text-white/40">Upload en cours…</p>
+      <p v-if="uploading" class="mt-2 text-sm text-slate-400">Upload en cours…</p>
     </div>
 
     <div class="glass-card overflow-hidden">
-      <div class="flex flex-wrap items-center gap-3 border-b border-white/5 px-5 py-4">
+      <div class="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-4">
         <h2 class="font-display text-lg font-semibold">
           Contenus générés par l'IA en attente de validation
         </h2>
         <span
-          class="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-semibold text-amber-300"
+          class="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-semibold text-amber-600"
         >
           {{ pending.length }} en attente
         </span>
       </div>
 
-      <div v-if="loading" class="p-8 text-center text-white/40">Chargement…</div>
-      <div v-else-if="!pending.length" class="p-8 text-center text-white/40">
+      <div v-if="loading" class="p-8 text-center text-slate-400">Chargement…</div>
+      <div v-else-if="!pending.length" class="p-8 text-center text-slate-400">
         Aucun contenu en attente.
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left text-sm">
-          <thead class="border-b border-white/5 text-xs uppercase tracking-wide text-white/40">
+          <thead class="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th class="px-5 py-3 font-medium">Notion</th>
               <th class="px-5 py-3 font-medium">Type</th>
@@ -56,10 +56,10 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-white/5">
-            <tr v-for="c in pending" :key="c.id" class="hover:bg-white/[0.02]">
+            <tr v-for="c in pending" :key="c.id" class="hover:bg-slate-50">
               <td class="px-5 py-3 font-medium">{{ c.notion }}</td>
-              <td class="px-5 py-3 text-white/60">{{ c.type }}</td>
-              <td class="max-w-xs truncate px-5 py-3 text-white/50">{{ c.apercu }}</td>
+              <td class="px-5 py-3 text-slate-500">{{ c.type }}</td>
+              <td class="max-w-xs truncate px-5 py-3 text-slate-500">{{ c.apercu }}</td>
               <td class="px-5 py-3">
                 <div class="flex flex-wrap gap-2">
                   <button type="button" class="btn-primary !px-3 !py-1.5 text-xs" @click="validate(c)">

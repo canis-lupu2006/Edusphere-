@@ -1,8 +1,8 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-8 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
           ADMINISTRATION
         </p>
         <h1 class="page-title">Statistiques</h1>
@@ -20,32 +20,32 @@
         :value="`${kpis.regularite}%`"
         hint="Basé sur les progressions"
         :icon="BookOpen"
-        icon-bg="bg-emerald-500/15"
-        icon-color="text-emerald-300"
+        icon-bg="bg-emerald-100"
+        icon-color="text-emerald-700"
       />
       <StatCard
         label="Participation"
         :value="`${kpis.participation}%`"
         hint="Tentatives / élèves"
         :icon="Users"
-        icon-bg="bg-blue-500/15"
-        icon-color="text-blue-300"
+        icon-bg="bg-blue-100"
+        icon-color="text-blue-600"
       />
       <StatCard
         label="Score moyen"
         :value="`${kpis.avgScore}%`"
         hint="Toutes tentatives"
         :icon="TrendingUp"
-        icon-bg="bg-teal-500/15"
-        icon-color="text-teal-300"
+        icon-bg="bg-teal-100"
+        icon-color="text-teal-700"
       />
       <StatCard
         label="Taux de résolution"
         :value="`${kpis.resolution}%`"
         hint="Tickets résolus"
         :icon="CheckCircle2"
-        icon-bg="bg-violet-500/15"
-        icon-color="text-violet-300"
+        icon-bg="bg-violet-100"
+        icon-color="text-violet-600"
       />
     </div>
 
@@ -55,10 +55,10 @@
         <ul v-if="masteryBars.length" class="space-y-4">
           <li v-for="m in masteryBars" :key="m.matiere">
             <div class="mb-1.5 flex items-center justify-between text-sm">
-              <span class="text-white/70">{{ m.matiere }}</span>
-              <span class="font-semibold text-emerald-300">{{ m.avg }}%</span>
+              <span class="text-slate-600">{{ m.matiere }}</span>
+              <span class="font-semibold text-emerald-700">{{ m.avg }}%</span>
             </div>
-            <div class="h-2 overflow-hidden rounded-full bg-white/10">
+            <div class="h-2 overflow-hidden rounded-full bg-slate-100">
               <div
                 class="h-full rounded-full transition-all"
                 :class="barColor(m.avg)"
@@ -67,28 +67,28 @@
             </div>
           </li>
         </ul>
-        <p v-else class="py-8 text-center text-sm text-white/40">Pas encore de données de progression.</p>
+        <p v-else class="py-8 text-center text-sm text-slate-400">Pas encore de données de progression.</p>
       </div>
 
       <div class="glass-card p-5">
         <h2 class="mb-4 font-display text-lg font-semibold">Répartition des tickets</h2>
-        <p class="mb-4 text-sm text-white/45">
-          <span class="font-display text-2xl font-bold text-white">{{ ticketTotal }}</span>
+        <p class="mb-4 text-sm text-slate-500">
+          <span class="font-display text-2xl font-bold text-slate-900">{{ ticketTotal }}</span>
           tickets au total
         </p>
         <ul class="space-y-3">
           <li
             v-for="row in ticketDist"
             :key="row.status"
-            class="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm"
+            class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"
           >
             <div class="flex items-center gap-2">
               <span class="h-2.5 w-2.5 rounded-full" :class="row.dot" />
-              <span class="capitalize text-white/70">{{ row.label }}</span>
+              <span class="capitalize text-slate-600">{{ row.label }}</span>
             </div>
             <div class="text-right">
               <span class="font-semibold">{{ row.count }}</span>
-              <span class="ml-2 text-xs text-white/40">{{ row.pct }}%</span>
+              <span class="ml-2 text-xs text-slate-400">{{ row.pct }}%</span>
             </div>
           </li>
         </ul>
@@ -135,7 +135,7 @@ function statusMeta(status: string) {
   if (s === 'intervention' || s === 'en_cours') return { label: 'Intervention', dot: 'bg-teal-400' }
   if (s === 'sans_reponse') return { label: 'Sans réponse', dot: 'bg-orange-400' }
   if (s === 'nouveau' || s === 'ouvert') return { label: 'Nouveau', dot: 'bg-blue-400' }
-  return { label: status || 'Autre', dot: 'bg-white/40' }
+  return { label: status || 'Autre', dot: 'bg-slate-400' }
 }
 
 onMounted(async () => {

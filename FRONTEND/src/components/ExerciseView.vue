@@ -1,20 +1,20 @@
-<template>
+﻿<template>
   <div class="mx-auto max-w-3xl">
     <button
       type="button"
-      class="mb-4 inline-flex items-center gap-2 text-sm text-white/50 hover:text-white"
+      class="mb-4 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900"
       @click="$router.back()"
     >
       <ArrowLeft class="h-4 w-4" /> Retour
     </button>
 
-    <div v-if="loading" class="py-16 text-center text-white/40">Chargement de l'exercice…</div>
-    <div v-else-if="!exercise" class="glass-card py-12 text-center text-white/40">
+    <div v-if="loading" class="py-16 text-center text-slate-400">Chargement de l'exercice…</div>
+    <div v-else-if="!exercise" class="glass-card py-12 text-center text-slate-400">
       Exercice introuvable.
     </div>
     <template v-else>
       <header class="mb-6">
-        <p class="text-xs font-semibold uppercase tracking-wide text-blue-400">Exercice</p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Exercice</p>
         <h1 class="page-title">{{ exercise.titre }}</h1>
         <p v-if="exercise.description" class="page-sub">{{ exercise.description }}</p>
       </header>
@@ -26,7 +26,7 @@
           class="glass-card p-5"
         >
           <p class="mb-3 text-sm font-medium">
-            <span class="mr-2 text-white/35">{{ idx + 1 }}.</span>
+            <span class="mr-2 text-slate-400">{{ idx + 1 }}.</span>
             {{ q.enonce || q.question }}
           </p>
 
@@ -35,7 +35,7 @@
             <label
               v-for="(opt, oi) in q.options || []"
               :key="oi"
-              class="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 transition hover:border-blue-500/40"
+              class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 transition hover:border-blue-500/40"
               :class="{ 'border-blue-500/60 bg-blue-500/10': answers[q.id] === optionValue(opt) }"
             >
               <input
@@ -54,7 +54,7 @@
             <button
               type="button"
               class="flex-1 rounded-xl border px-4 py-3 text-sm transition"
-              :class="answers[q.id] === true ? 'border-emerald-500 bg-emerald-500/15' : 'border-white/10'"
+              :class="answers[q.id] === true ? 'border-emerald-500 bg-emerald-100' : 'border-slate-200'"
               @click="answers[q.id] = true"
             >
               Vrai
@@ -62,7 +62,7 @@
             <button
               type="button"
               class="flex-1 rounded-xl border px-4 py-3 text-sm transition"
-              :class="answers[q.id] === false ? 'border-red-500 bg-red-500/15' : 'border-white/10'"
+              :class="answers[q.id] === false ? 'border-red-500 bg-red-100' : 'border-slate-200'"
               @click="answers[q.id] = false"
             >
               Faux
@@ -92,12 +92,12 @@
       <!-- Résultat -->
       <div v-if="result" class="glass-card mt-6 border-emerald-500/20 p-5">
         <h2 class="font-display text-lg font-semibold">Résultat : {{ result.percent }}%</h2>
-        <p class="mt-1 text-sm text-white/50">
+        <p class="mt-1 text-sm text-slate-500">
           {{ result.score }} / {{ result.max }} bonnes réponses
         </p>
         <div v-if="aiAnalysis" class="mt-4 rounded-xl bg-violet-500/10 p-4 text-sm text-violet-100">
-          <p class="mb-1 font-semibold text-violet-300">Analyse IA</p>
-          <p class="whitespace-pre-wrap text-white/70">{{ aiAnalysis }}</p>
+          <p class="mb-1 font-semibold text-violet-600">Analyse IA</p>
+          <p class="whitespace-pre-wrap text-slate-600">{{ aiAnalysis }}</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@
           <textarea
             v-model="ticketMessage"
             rows="4"
-            class="mt-3 w-full rounded-xl border border-white/10 bg-[#0d1424] p-3 text-sm outline-none focus:border-blue-500/50"
+            class="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-blue-500/50"
             placeholder="Décrivez ce que vous ne comprenez pas…"
           />
           <div class="mt-4 flex justify-end gap-2">

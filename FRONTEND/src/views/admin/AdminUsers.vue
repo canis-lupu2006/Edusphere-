@@ -1,8 +1,8 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
           ADMINISTRATION
         </p>
         <h1 class="page-title">Élèves & Enseignants</h1>
@@ -20,11 +20,11 @@
       </div>
     </header>
 
-    <div class="mb-4 flex gap-6 border-b border-white/10">
+    <div class="mb-4 flex gap-6 border-b border-slate-200">
       <button
         type="button"
         class="border-b-2 pb-2 text-sm font-medium transition"
-        :class="tab === 'eleve' ? 'border-emerald-500 text-emerald-300' : 'border-transparent text-white/45 hover:text-white/70'"
+        :class="tab === 'eleve' ? 'border-emerald-500 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-600'"
         @click="tab = 'eleve'"
       >
         Élèves
@@ -32,7 +32,7 @@
       <button
         type="button"
         class="border-b-2 pb-2 text-sm font-medium transition"
-        :class="tab === 'enseignant' ? 'border-emerald-500 text-emerald-300' : 'border-transparent text-white/45 hover:text-white/70'"
+        :class="tab === 'enseignant' ? 'border-emerald-500 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-600'"
         @click="tab = 'enseignant'"
       >
         Enseignants
@@ -41,37 +41,37 @@
 
     <div class="mb-6 grid gap-4 sm:grid-cols-3">
       <div class="glass-card flex items-center gap-3 p-4">
-        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
+        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
           <Users class="h-4 w-4" />
         </div>
         <div>
           <p class="font-display text-xl font-bold">{{ elevesCount }}</p>
-          <p class="text-xs text-white/45">élèves</p>
+          <p class="text-xs text-slate-500">élèves</p>
         </div>
       </div>
       <div class="glass-card flex items-center gap-3 p-4">
-        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
+        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
           <GraduationCap class="h-4 w-4" />
         </div>
         <div>
           <p class="font-display text-xl font-bold">{{ enseignantsCount }}</p>
-          <p class="text-xs text-white/45">enseignants</p>
+          <p class="text-xs text-slate-500">enseignants</p>
         </div>
       </div>
       <div class="glass-card flex items-center gap-3 p-4">
-        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/15 text-amber-300">
+        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
           <UserX class="h-4 w-4" />
         </div>
         <div>
           <p class="font-display text-xl font-bold">{{ inactifsCount }}</p>
-          <p class="text-xs text-white/45">comptes inactifs</p>
+          <p class="text-xs text-slate-500">comptes inactifs</p>
         </div>
       </div>
     </div>
 
     <div class="glass-card mb-4 flex flex-wrap gap-3 p-4">
       <div class="relative min-w-[14rem] flex-1">
-        <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+        <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           v-model="search"
           class="input-field"
@@ -91,7 +91,7 @@
 
     <div class="glass-card overflow-x-auto">
       <table class="w-full text-left text-sm">
-        <thead class="border-b border-white/10 text-[11px] uppercase tracking-wide text-white/45">
+        <thead class="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
           <tr>
             <th class="px-4 py-3">Nom</th>
             <th class="px-4 py-3">Classe</th>
@@ -102,7 +102,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="u in filtered" :key="u.uid" class="border-b border-white/5">
+          <tr v-for="u in filtered" :key="u.uid" class="border-b border-slate-100">
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
                 <div
@@ -112,15 +112,15 @@
                 </div>
                 <div>
                   <p class="font-medium">{{ displayName(u) }}</p>
-                  <p class="text-xs text-white/40">{{ u.email || '—' }}</p>
+                  <p class="text-xs text-slate-400">{{ u.email || '—' }}</p>
                 </div>
               </div>
             </td>
-            <td class="px-4 py-3 text-white/70">{{ u.classeNom || '—' }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ u.classeNom || '—' }}</td>
             <td class="px-4 py-3">
               <select
                 :value="u.role ?? ''"
-                class="rounded-lg border border-white/10 bg-[#0d1424] px-2 py-1 text-xs"
+                class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs"
                 @change="onRoleChange(u, $event)"
               >
                 <option value="eleve">Élève</option>
@@ -129,7 +129,7 @@
                 <option value="admin">Admin</option>
               </select>
             </td>
-            <td class="px-4 py-3 font-medium text-emerald-300">
+            <td class="px-4 py-3 font-medium text-emerald-700">
               {{ u.moyenne != null ? `${u.moyenne} / 20` : '—' }}
             </td>
             <td class="px-4 py-3">
@@ -138,8 +138,8 @@
                 class="rounded-full border px-2 py-1 text-xs"
                 :class="
                   (u.status || 'actif') === 'actif'
-                    ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300'
-                    : 'border-white/10 bg-white/5 text-white/50'
+                    ? 'border-emerald-500/30 bg-emerald-100 text-emerald-700'
+                    : 'border-slate-200 bg-slate-50 text-slate-500'
                 "
                 @change="onStatusChange(u, $event)"
               >
@@ -150,7 +150,7 @@
             <td class="px-4 py-3">
               <button
                 type="button"
-                class="rounded-lg p-1.5 text-white/40 transition hover:bg-white/10 hover:text-white"
+                class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900"
                 title="Modifier le profil"
                 @click="editNote(u)"
               >
@@ -159,7 +159,7 @@
             </td>
           </tr>
           <tr v-if="!filtered.length">
-            <td colspan="6" class="px-4 py-10 text-center text-white/40">Aucun utilisateur trouvé.</td>
+            <td colspan="6" class="px-4 py-10 text-center text-slate-400">Aucun utilisateur trouvé.</td>
           </tr>
         </tbody>
       </table>

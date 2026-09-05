@@ -5,16 +5,19 @@ export default {
     extend: {
       colors: {
         edu: {
-          bg: '#0a0f1e',
-          card: '#111827',
-          border: 'rgba(255,255,255,0.08)',
-          blue: '#3b82f6',
-          purple: '#8b5cf6',
-          green: '#10b981',
-          amber: '#f59e0b',
-          admin: '#10b981',
-          parent: '#1a5c45',
+          bg: '#F5F8FC',
+          card: '#FFFFFF',
+          border: 'rgba(15, 23, 42, 0.08)',
+          blue: '#2563EB',
+          indigo: '#5B4FCF',
+          teal: '#0F766E',
+          amber: '#F59E0B',
+          green: '#0F766E',
+          admin: '#0F766E',
+          parent: '#1A5C45',
           ministere: '#166534',
+          text: '#0F172A',
+          muted: '#64748B',
         },
       },
       fontFamily: {
@@ -22,12 +25,17 @@ export default {
         display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        glow: '0 0 20px rgba(59, 130, 246, 0.45)',
-        'glow-purple': '0 0 24px rgba(139, 92, 246, 0.4)',
+        glow: '0 8px 24px rgba(37, 99, 235, 0.18)',
+        'glow-purple': '0 8px 24px rgba(91, 79, 207, 0.16)',
+        soft: '0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04)',
       },
       backgroundImage: {
         'edu-radial':
-          'radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.12), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.1), transparent 45%)',
+          'radial-gradient(ellipse at 15% 10%, rgba(37,99,235,0.06), transparent 45%), radial-gradient(ellipse at 85% 90%, rgba(245,158,11,0.05), transparent 40%)',
+        'edu-radial-teacher':
+          'radial-gradient(ellipse at 15% 10%, rgba(91,79,207,0.06), transparent 45%), radial-gradient(ellipse at 85% 90%, rgba(13,148,136,0.05), transparent 40%)',
+        'edu-radial-admin':
+          'radial-gradient(ellipse at 15% 10%, rgba(15,118,110,0.06), transparent 45%), radial-gradient(ellipse at 85% 90%, rgba(217,119,6,0.05), transparent 40%)',
       },
     },
   },

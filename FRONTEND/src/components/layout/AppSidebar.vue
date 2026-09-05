@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="flex h-screen w-64 shrink-0 flex-col border-r border-white/5 bg-[#070b16]/90 backdrop-blur-xl"
+    class="flex h-full w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white"
     :class="asideClass"
   >
     <div class="flex items-center gap-3 px-5 py-5">
@@ -11,7 +11,7 @@
         <component :is="logoIcon" class="h-5 w-5 text-white" />
       </div>
       <div>
-        <p class="font-display text-lg font-semibold leading-none">EduSphere</p>
+        <p class="font-display text-lg font-semibold leading-none text-slate-900">EduSphere</p>
         <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider" :class="badgeClass">
           {{ spaceLabel }}
         </p>
@@ -24,7 +24,7 @@
         :key="item.to"
         :to="item.to"
         class="nav-link"
-        :class="{ 'nav-link-active': isActive(item) }"
+        :class="{ [activeNavClass]: isActive(item) }"
       >
         <component :is="item.icon" class="h-4.5 w-4.5 shrink-0 opacity-80" />
         <span>{{ item.label }}</span>
@@ -37,8 +37,8 @@
       </RouterLink>
     </nav>
 
-    <div class="border-t border-white/5 p-4">
-      <div class="mb-3 flex items-center gap-3 rounded-xl bg-white/5 p-3">
+    <div class="border-t border-slate-200/80 p-4">
+      <div class="mb-3 flex items-center gap-3 rounded-xl bg-slate-50 p-3">
         <div
           class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold"
           :class="avatarClass"
@@ -46,13 +46,13 @@
           {{ auth.initials }}
         </div>
         <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium">{{ auth.displayName }}</p>
-          <p class="truncate text-xs text-white/45">{{ subtitle }}</p>
+          <p class="truncate text-sm font-medium text-slate-900">{{ auth.displayName }}</p>
+          <p class="truncate text-xs text-slate-500">{{ subtitle }}</p>
         </div>
       </div>
       <button
         type="button"
-        class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-400 transition hover:bg-red-500/10"
+        class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-600 transition hover:bg-red-50"
         @click="onLogout"
       >
         <LogOut class="h-4 w-4" />
@@ -93,26 +93,33 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
-const accentMap: Record<string, { logo: string; badge: string; avatar: string }> = {
+const accentMap: Record<
+  string,
+  { logo: string; badge: string; avatar: string; activeNav: string }
+> = {
   blue: {
     logo: 'bg-gradient-to-br from-blue-600 to-blue-500 shadow-glow',
-    badge: 'text-blue-400',
-    avatar: 'bg-blue-600/30 text-blue-200',
+    badge: 'text-blue-600',
+    avatar: 'bg-blue-100 text-blue-700',
+    activeNav: 'nav-link-active',
   },
   purple: {
-    logo: 'bg-gradient-to-br from-violet-600 to-blue-500 shadow-glow-purple',
-    badge: 'text-violet-300',
-    avatar: 'bg-violet-600/30 text-violet-200',
+    logo: 'bg-gradient-to-br from-indigo-600 to-indigo-500 shadow-glow-purple',
+    badge: 'text-indigo-600',
+    avatar: 'bg-indigo-100 text-indigo-700',
+    activeNav: 'nav-link-active-indigo',
   },
   green: {
-    logo: 'bg-gradient-to-br from-emerald-600 to-teal-500',
-    badge: 'text-emerald-400',
-    avatar: 'bg-emerald-600/30 text-emerald-200',
+    logo: 'bg-gradient-to-br from-teal-700 to-teal-600',
+    badge: 'text-teal-700',
+    avatar: 'bg-teal-100 text-teal-800',
+    activeNav: 'nav-link-active-teal',
   },
   parent: {
     logo: 'bg-gradient-to-br from-emerald-700 to-green-600',
     badge: 'text-emerald-700',
     avatar: 'bg-emerald-100 text-emerald-800',
+    activeNav: 'nav-link-active-teal',
   },
 }
 
@@ -120,6 +127,7 @@ const theme = computed(() => accentMap[props.accent] || accentMap.blue)
 const logoBg = computed(() => theme.value.logo)
 const badgeClass = computed(() => theme.value.badge)
 const avatarClass = computed(() => theme.value.avatar)
+const activeNavClass = computed(() => theme.value.activeNav)
 
 function isActive(item: NavItem) {
   if (item.exact) return route.path === item.to

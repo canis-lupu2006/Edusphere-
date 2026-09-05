@@ -1,8 +1,8 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-600">
           PROFESSEUR
         </p>
         <h1 class="page-title">Compréhension de la classe</h1>
@@ -17,8 +17,8 @@
     </header>
 
     <div class="glass-card overflow-hidden">
-      <div v-if="loading" class="p-8 text-center text-white/40">Chargement…</div>
-      <div v-else-if="!topics.length" class="p-8 text-center text-white/40">
+      <div v-if="loading" class="p-8 text-center text-slate-400">Chargement…</div>
+      <div v-else-if="!topics.length" class="p-8 text-center text-slate-400">
         Aucune notion détectée pour cette classe.
       </div>
       <ul v-else class="divide-y divide-white/5">
@@ -34,7 +34,7 @@
             </p>
           </div>
           <div class="min-w-[8rem] flex-[2]">
-            <div class="h-2 overflow-hidden rounded-full bg-white/10">
+            <div class="h-2 overflow-hidden rounded-full bg-slate-100">
               <div
                 class="h-full rounded-full transition-all"
                 :class="barColor(t.maitrisePercent)"
@@ -55,7 +55,7 @@
           </span>
         </li>
       </ul>
-      <p v-if="toast" class="border-t border-white/5 px-5 py-3 text-sm text-emerald-300">
+      <p v-if="toast" class="border-t border-slate-100 px-5 py-3 text-sm text-emerald-700">
         {{ toast }}
       </p>
     </div>
@@ -90,8 +90,8 @@ let unsub: Unsubscribe | null = null
 function difficulteColor(pct?: number) {
   const v = pct ?? 0
   if (v >= 50) return 'text-red-400'
-  if (v >= 30) return 'text-amber-300'
-  return 'text-emerald-300'
+  if (v >= 30) return 'text-amber-600'
+  return 'text-emerald-700'
 }
 
 function barColor(pct?: number) {

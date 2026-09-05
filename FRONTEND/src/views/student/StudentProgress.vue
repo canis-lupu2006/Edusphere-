@@ -1,39 +1,23 @@
-<template>
+﻿<template>
   <div>
-    <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
-          ESPACE ÉLÈVE
-        </p>
-        <h1 class="page-title">Progression & révisions</h1>
-        <p class="page-sub">Ta maîtrise par compétence et ton programme de répétition espacée.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <select v-model="matiereFilter" class="input-field !w-auto !pl-4 min-w-[180px]">
+    <StudentPageHeader
+      title="Progression & révisions"
+      subtitle="Ta maîtrise par compétence et ton programme de répétition espacée."
+    >
+      <template #actions>
+        <select v-model="matiereFilter" class="min-w-[180px] rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none">
           <option value="">Toutes les matières</option>
           <option v-for="m in matieres" :key="m" :value="m">{{ m }}</option>
         </select>
-        <button
-          type="button"
-          class="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10"
-          aria-label="Notifications"
-        >
-          <Bell class="h-5 w-5" />
-          <span
-            class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
-          >
-            2
-          </span>
-        </button>
-      </div>
-    </header>
+      </template>
+    </StudentPageHeader>
 
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <!-- Maîtrise -->
       <div class="glass-card p-5">
         <div class="mb-4 flex items-center gap-3">
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/20 text-sm font-bold text-blue-300"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-sm font-bold text-blue-700"
           >
             Σ
           </div>
@@ -45,9 +29,9 @@
           <li v-for="(t, i) in masteryTopics" :key="i">
             <div class="mb-1 flex justify-between text-sm">
               <span>{{ t.titre }}</span>
-              <span class="text-white/50">{{ t.percent }}%</span>
+              <span class="text-slate-500">{{ t.percent }}%</span>
             </div>
-            <div class="h-2.5 overflow-hidden rounded-full bg-white/10">
+            <div class="h-2.5 overflow-hidden rounded-full bg-slate-100">
               <div
                 class="h-full rounded-full bg-gradient-to-r"
                 :class="barClass(i)"
@@ -56,10 +40,10 @@
             </div>
           </li>
         </ul>
-        <p v-else class="text-sm text-white/40">Pas encore de progression enregistrée.</p>
+        <p v-else class="text-sm text-slate-400">Pas encore de progression enregistrée.</p>
         <RouterLink
           to="/student/progression"
-          class="mt-5 inline-block text-sm text-blue-400 hover:underline"
+          class="mt-5 inline-block text-sm text-blue-600 hover:underline"
         >
           Voir le détail par compétences →
         </RouterLink>
@@ -69,7 +53,7 @@
       <div class="glass-card p-5">
         <div class="mb-4 flex items-center gap-3">
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-700/60 text-blue-300"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-blue-600"
           >
             <CalendarDays class="h-5 w-5" />
           </div>
@@ -79,7 +63,7 @@
           <li
             v-for="r in revisions"
             :key="r.id"
-            class="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5"
+            class="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5"
           >
             <div
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
@@ -93,7 +77,7 @@
               </p>
               <p class="truncate text-sm">
                 {{ r.titre || 'Révision' }}
-                <span v-if="r.matiere" class="text-white/40">({{ r.matiere }})</span>
+                <span v-if="r.matiere" class="text-slate-400">({{ r.matiere }})</span>
               </p>
             </div>
             <span
@@ -104,7 +88,7 @@
             </span>
           </li>
         </ul>
-        <p v-else class="text-sm text-white/40">Aucune révision programmée.</p>
+        <p v-else class="text-sm text-slate-400">Aucune révision programmée.</p>
       </div>
     </div>
 
@@ -114,11 +98,11 @@
         <AlertTriangle class="h-5 w-5 text-amber-400" />
         <h2 class="font-display text-lg font-semibold">Erreurs fréquentes</h2>
       </div>
-      <ul v-if="errors.length" class="divide-y divide-white/5">
+      <ul v-if="errors.length" class="divide-y divide-slate-100">
         <li
           v-for="e in errors"
           :key="e.id"
-          class="flex cursor-pointer items-center gap-3 py-3 transition hover:bg-white/[0.02]"
+          class="flex cursor-pointer items-center gap-3 py-3 transition hover:bg-slate-50"
         >
           <div
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
@@ -128,19 +112,19 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="font-medium">{{ e.titre || 'Erreur' }}</p>
-            <p class="text-xs text-white/40">
+            <p class="text-xs text-slate-400">
               {{ e.matiere || '—' }}
               <span v-if="e.notion || e.competence">
                 • {{ e.notion || e.competence }}
               </span>
             </p>
           </div>
-          <ChevronRight class="h-4 w-4 text-white/30" />
+          <ChevronRight class="h-4 w-4 text-slate-400" />
         </li>
       </ul>
-      <p v-else class="text-sm text-white/40">Aucune erreur fréquente détectée.</p>
+      <p v-else class="text-sm text-slate-400">Aucune erreur fréquente détectée.</p>
       <div class="mt-4 text-center">
-        <button type="button" class="text-sm text-blue-400 hover:underline">
+        <button type="button" class="text-sm text-blue-600 hover:underline">
           Voir toutes les erreurs fréquentes →
         </button>
       </div>
@@ -152,8 +136,9 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { collection, query, where, getDocs, limit } from 'firebase/firestore'
-import { Bell, CalendarDays, AlertTriangle, ChevronRight } from 'lucide-vue-next'
+import { CalendarDays, AlertTriangle, ChevronRight } from 'lucide-vue-next'
 import type { FrequentError, ProgressRecord, ProgressTopic, Revision } from '@/types/models'
+import StudentPageHeader from '@/components/StudentPageHeader.vue'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
 
@@ -220,26 +205,26 @@ function revisionTone(r: Revision) {
   const days = Number(r.dueInDays ?? (r.dueLabel?.toLowerCase().includes('auj') ? 0 : 3))
   if (days <= 0)
     return {
-      icon: 'bg-emerald-500/15 text-emerald-300',
-      label: 'text-emerald-300',
-      badge: 'bg-emerald-500/15 text-emerald-300',
+      icon: 'bg-emerald-100 text-emerald-700',
+      label: 'text-emerald-700',
+      badge: 'bg-emerald-100 text-emerald-700',
     }
   if (days === 1)
     return {
-      icon: 'bg-orange-500/15 text-orange-300',
-      label: 'text-orange-300',
-      badge: 'bg-orange-500/15 text-orange-300',
+      icon: 'bg-orange-100 text-orange-600',
+      label: 'text-orange-600',
+      badge: 'bg-orange-100 text-orange-600',
     }
   if (days <= 3)
     return {
-      icon: 'bg-violet-500/15 text-violet-300',
-      label: 'text-violet-300',
-      badge: 'bg-violet-500/15 text-violet-300',
+      icon: 'bg-violet-100 text-violet-600',
+      label: 'text-violet-600',
+      badge: 'bg-violet-100 text-violet-600',
     }
   return {
-    icon: 'bg-blue-500/15 text-blue-300',
-    label: 'text-blue-300',
-    badge: 'bg-blue-500/15 text-blue-300',
+    icon: 'bg-blue-100 text-blue-600',
+    label: 'text-blue-600',
+    badge: 'bg-blue-100 text-blue-600',
   }
 }
 
@@ -253,9 +238,9 @@ function errorGlyph(e: FrequentError) {
 
 function errorIconClass(e: FrequentError) {
   const m = (e.matiere || '').toLowerCase()
-  if (m.includes('math')) return 'bg-rose-900/50 text-rose-300'
-  if (m.includes('fran')) return 'bg-blue-500/20 text-blue-300'
-  return 'bg-violet-500/20 text-violet-300'
+  if (m.includes('math')) return 'bg-rose-100 text-rose-700'
+  if (m.includes('fran')) return 'bg-blue-100 text-blue-700'
+  return 'bg-violet-100 text-violet-700'
 }
 
 onMounted(async () => {

@@ -1,25 +1,25 @@
-<template>
+﻿<template>
   <div>
     <header class="mb-8 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-teal-700">
           ADMINISTRATION
         </p>
         <h1 class="page-title">Tableau de bord</h1>
         <div class="mt-2 flex items-center gap-3">
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-300"
+            class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-700"
           >
             {{ schoolInitials }}
           </div>
           <div>
-            <p class="font-medium text-white">{{ schoolName }}</p>
-            <p class="text-xs text-white/45">Vue d'ensemble de l'établissement</p>
+            <p class="font-medium text-slate-900">{{ schoolName }}</p>
+            <p class="text-xs text-slate-500">Vue d'ensemble de l'établissement</p>
           </div>
         </div>
       </div>
       <div class="flex flex-wrap gap-2">
-        <RouterLink to="/admin/users" class="btn-secondary text-sm !border-emerald-500/40 !text-emerald-300">
+        <RouterLink to="/admin/users" class="btn-secondary text-sm !border-emerald-500/40 !text-emerald-700">
           <UserPlus class="h-4 w-4" />
           Ajouter élève
         </RouterLink>
@@ -40,32 +40,32 @@
         :value="stats.eleves"
         hint="Comptes rôle élève"
         :icon="Users"
-        icon-bg="bg-emerald-500/15"
-        icon-color="text-emerald-300"
+        icon-bg="bg-emerald-100"
+        icon-color="text-emerald-700"
       />
       <StatCard
         label="Enseignants"
         :value="stats.enseignants"
         hint="Comptes rôle enseignant"
         :icon="GraduationCap"
-        icon-bg="bg-teal-500/15"
-        icon-color="text-teal-300"
+        icon-bg="bg-teal-100"
+        icon-color="text-teal-700"
       />
       <StatCard
         label="Classes"
         :value="stats.classes"
         hint="Collège & Lycée"
         :icon="School"
-        icon-bg="bg-amber-500/15"
-        icon-color="text-amber-300"
+        icon-bg="bg-amber-100"
+        icon-color="text-amber-600"
       />
       <StatCard
         label="Usage hors-ligne"
         :value="`${stats.offline}%`"
         hint="Estimation locale"
         :icon="CloudOff"
-        icon-bg="bg-emerald-500/15"
-        icon-color="text-emerald-300"
+        icon-bg="bg-emerald-100"
+        icon-color="text-emerald-700"
       />
     </div>
 
@@ -74,34 +74,34 @@
         <h2 class="mb-4 font-display text-lg font-semibold">Indicateurs d'impact</h2>
         <ul class="space-y-4 text-sm">
           <li class="flex items-center justify-between gap-3">
-            <span class="flex items-center gap-2 text-white/55">
-              <Target class="h-4 w-4 text-emerald-400" />
+            <span class="flex items-center gap-2 text-slate-500">
+              <Target class="h-4 w-4 text-emerald-700" />
               Maîtrise moyenne
             </span>
-            <span class="font-semibold text-emerald-300">{{ impact.maitrise }}%</span>
+            <span class="font-semibold text-emerald-700">{{ impact.maitrise }}%</span>
           </li>
           <li class="flex items-center justify-between gap-3">
-            <span class="flex items-center gap-2 text-white/55">
-              <Clock class="h-4 w-4 text-emerald-400" />
+            <span class="flex items-center gap-2 text-slate-500">
+              <Clock class="h-4 w-4 text-emerald-700" />
               Score moyen tentatives
             </span>
-            <span class="font-semibold text-emerald-300">{{ impact.avgScore }}%</span>
+            <span class="font-semibold text-emerald-700">{{ impact.avgScore }}%</span>
           </li>
           <li class="flex items-center justify-between gap-3">
-            <span class="flex items-center gap-2 text-white/55">
-              <CheckCircle2 class="h-4 w-4 text-emerald-400" />
+            <span class="flex items-center gap-2 text-slate-500">
+              <CheckCircle2 class="h-4 w-4 text-emerald-700" />
               Tickets résolus
             </span>
-            <span class="font-semibold text-emerald-300">
+            <span class="font-semibold text-emerald-700">
               {{ impact.resolved }} / {{ impact.totalTickets }}
             </span>
           </li>
           <li class="flex items-center justify-between gap-3">
-            <span class="flex items-center gap-2 text-white/55">
-              <Star class="h-4 w-4 text-amber-300" />
+            <span class="flex items-center gap-2 text-slate-500">
+              <Star class="h-4 w-4 text-amber-600" />
               Tickets ouverts
             </span>
-            <span class="font-semibold text-emerald-300">{{ impact.openTickets }}</span>
+            <span class="font-semibold text-emerald-700">{{ impact.openTickets }}</span>
           </li>
         </ul>
       </div>
@@ -109,10 +109,10 @@
       <div class="glass-card p-5">
         <div class="mb-4 flex items-center justify-between">
           <h2 class="flex items-center gap-2 font-display text-lg font-semibold">
-            <Bell class="h-4 w-4 text-emerald-400" />
+            <Bell class="h-4 w-4 text-emerald-700" />
             Alertes administratives
           </h2>
-          <RouterLink to="/admin/supervision" class="text-xs text-emerald-400 hover:underline">
+          <RouterLink to="/admin/supervision" class="text-xs text-emerald-700 hover:underline">
             Voir tout →
           </RouterLink>
         </div>
@@ -120,12 +120,12 @@
           <li
             v-for="a in alerts.slice(0, 5)"
             :key="a.id"
-            class="rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
           >
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div class="min-w-0">
                 <p class="text-sm font-medium">{{ a.titre || a.type || 'Alerte' }}</p>
-                <p class="mt-0.5 text-xs text-white/45">{{ a.detail || '—' }}</p>
+                <p class="mt-0.5 text-xs text-slate-500">{{ a.detail || '—' }}</p>
               </div>
               <span
                 class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
@@ -136,7 +136,7 @@
             </div>
           </li>
         </ul>
-        <p v-else class="py-6 text-center text-sm text-white/40">Aucune alerte pour le moment.</p>
+        <p v-else class="py-6 text-center text-sm text-slate-400">Aucune alerte pour le moment.</p>
       </div>
     </div>
 
@@ -148,7 +148,7 @@
         <li
           v-for="log in activity.slice(0, 8)"
           :key="log.id"
-          class="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3"
+          class="flex items-start gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3"
         >
           <div
             class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
@@ -158,11 +158,11 @@
           </div>
           <div class="min-w-0">
             <p class="text-sm font-medium">{{ log.type || 'Activité' }}</p>
-            <p class="mt-0.5 text-xs text-white/45">{{ log.message || '—' }}</p>
+            <p class="mt-0.5 text-xs text-slate-500">{{ log.message || '—' }}</p>
           </div>
         </li>
       </ul>
-      <p v-else class="py-6 text-center text-sm text-white/40">Aucune activité récente.</p>
+      <p v-else class="py-6 text-center text-sm text-slate-400">Aucune activité récente.</p>
     </div>
   </div>
 </template>
@@ -239,9 +239,9 @@ let unsubs: Unsubscribe[] = []
 
 function alertBadgeClass(a: AlertItem) {
   const key = String(a.priorite || a.status || '').toLowerCase()
-  if (key.includes('urgent')) return 'bg-red-500/20 text-red-300'
-  if (key.includes('surveiller') || key.includes('attention')) return 'bg-amber-500/20 text-amber-300'
-  return 'bg-emerald-500/20 text-emerald-300'
+  if (key.includes('urgent')) return 'bg-red-500/20 text-red-600'
+  if (key.includes('surveiller') || key.includes('attention')) return 'bg-amber-500/20 text-amber-600'
+  return 'bg-emerald-500/20 text-emerald-700'
 }
 
 function activityIcon(log: ActivityLog) {
@@ -254,10 +254,10 @@ function activityIcon(log: ActivityLog) {
 
 function activityIconBg(log: ActivityLog) {
   const t = String(log.type || '').toLowerCase()
-  if (t.includes('élève') || t.includes('eleve') || t.includes('inscrit')) return 'bg-emerald-500/15 text-emerald-300'
-  if (t.includes('annonce')) return 'bg-blue-500/15 text-blue-300'
-  if (t.includes('rapport') || t.includes('export')) return 'bg-violet-500/15 text-violet-300'
-  return 'bg-white/10 text-white/60'
+  if (t.includes('élève') || t.includes('eleve') || t.includes('inscrit')) return 'bg-emerald-100 text-emerald-700'
+  if (t.includes('annonce')) return 'bg-blue-100 text-blue-600'
+  if (t.includes('rapport') || t.includes('export')) return 'bg-violet-100 text-violet-600'
+  return 'bg-slate-100 text-slate-500'
 }
 
 onMounted(async () => {

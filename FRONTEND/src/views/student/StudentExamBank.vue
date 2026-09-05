@@ -1,61 +1,42 @@
-<template>
+﻿<template>
   <div>
-    <header class="mb-6 flex items-start justify-between gap-4">
-      <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-blue-400">
-          ESPACE ÉLÈVE
-        </p>
-        <h1 class="page-title">Banque d'épreuves</h1>
-        <p class="page-sub">
-          Épreuves collaboratives classées par pays, établissement, niveau, matière et chapitre.
-        </p>
-      </div>
-      <button
-        type="button"
-        class="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10"
-        aria-label="Notifications"
-      >
-        <Bell class="h-5 w-5" />
-        <span
-          class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
-        >
-          2
-        </span>
-      </button>
-    </header>
+    <StudentPageHeader
+      title="Banque d'épreuves"
+      subtitle="Épreuves collaboratives classées par pays, établissement, niveau, matière et chapitre."
+    />
 
     <!-- Filtres -->
     <section class="glass-card mb-6 p-5">
       <div class="mb-4 flex items-center gap-3">
-        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/15 text-blue-300">
+        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600">
           <Filter class="h-4 w-4" />
         </div>
         <h2 class="font-display text-base font-semibold">Filtres</h2>
       </div>
       <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <label class="block">
-          <span class="mb-1.5 block text-xs text-white/45">Pays</span>
+          <span class="mb-1.5 block text-xs text-slate-500">Pays</span>
           <select v-model="filters.pays" class="input-field !pl-4">
             <option value="">Tous</option>
             <option v-for="p in paysOptions" :key="p" :value="p">{{ p }}</option>
           </select>
         </label>
         <label class="block">
-          <span class="mb-1.5 block text-xs text-white/45">Niveau</span>
+          <span class="mb-1.5 block text-xs text-slate-500">Niveau</span>
           <select v-model="filters.niveau" class="input-field !pl-4">
             <option value="">Tous</option>
             <option v-for="n in niveauOptions" :key="n" :value="n">{{ n }}</option>
           </select>
         </label>
         <label class="block">
-          <span class="mb-1.5 block text-xs text-white/45">Matière</span>
+          <span class="mb-1.5 block text-xs text-slate-500">Matière</span>
           <select v-model="filters.matiere" class="input-field !pl-4">
             <option value="">Toutes</option>
             <option v-for="m in matiereOptions" :key="m" :value="m">{{ m }}</option>
           </select>
         </label>
         <label class="block">
-          <span class="mb-1.5 block text-xs text-white/45">Type d'épreuve</span>
+          <span class="mb-1.5 block text-xs text-slate-500">Type d'épreuve</span>
           <select v-model="filters.type" class="input-field !pl-4">
             <option value="">Tous</option>
             <option v-for="t in typeOptions" :key="t" :value="t">{{ t }}</option>
@@ -66,24 +47,24 @@
 
     <!-- Résultats -->
     <section class="glass-card overflow-hidden">
-      <div class="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
+      <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
         <div class="flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/15 text-blue-300">
+          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600">
             <FileSearch class="h-4 w-4" />
           </div>
           <h2 class="font-display text-base font-semibold">Résultats</h2>
         </div>
-        <span class="text-sm text-white/45">{{ filtered.length }} épreuves</span>
+        <span class="text-sm text-slate-500">{{ filtered.length }} épreuves</span>
       </div>
 
-      <div v-if="loading" class="py-12 text-center text-white/40">Chargement…</div>
-      <div v-else-if="!filtered.length" class="py-12 text-center text-white/40">
+      <div v-if="loading" class="py-12 text-center text-slate-400">Chargement…</div>
+      <div v-else-if="!filtered.length" class="py-12 text-center text-slate-400">
         Aucune épreuve ne correspond aux filtres.
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full min-w-[560px] text-left text-sm">
           <thead>
-            <tr class="border-b border-white/10 text-[10px] uppercase tracking-wider text-blue-300/70">
+            <tr class="border-b border-slate-200 text-[10px] uppercase tracking-wider text-blue-600/70">
               <th class="px-5 py-3 font-semibold">Type</th>
               <th class="px-3 py-3 font-semibold">Matière</th>
               <th class="px-3 py-3 font-semibold">Niveau</th>
@@ -94,11 +75,11 @@
             <tr
               v-for="e in filtered"
               :key="e.id"
-              class="border-b border-white/5 transition hover:bg-white/[0.03]"
+              class="border-b border-slate-100 transition hover:bg-slate-50"
             >
               <td class="px-5 py-3.5 font-medium">{{ e.type || 'Épreuve' }}</td>
-              <td class="px-3 py-3.5 text-white/70">{{ e.matiere || '—' }}</td>
-              <td class="px-3 py-3.5 text-white/55">{{ e.niveau || '—' }}</td>
+              <td class="px-3 py-3.5 text-slate-600">{{ e.matiere || '—' }}</td>
+              <td class="px-3 py-3.5 text-slate-500">{{ e.niveau || '—' }}</td>
               <td class="px-5 py-3.5 text-right">
                 <button
                   type="button"
@@ -121,8 +102,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { collection, getDocs, query, where } from 'firebase/firestore'
-import { Bell, Filter, FileSearch, Download } from 'lucide-vue-next'
+import { Filter, FileSearch, Download } from 'lucide-vue-next'
 import type { Epreuve } from '@/types/models'
+import StudentPageHeader from '@/components/StudentPageHeader.vue'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
 

@@ -9,9 +9,9 @@
       </div>
       <slot name="badge" />
     </div>
-    <p class="text-xs uppercase tracking-wide text-white/45">{{ label }}</p>
-    <p class="mt-1 font-display text-2xl font-bold">{{ value }}</p>
-    <p v-if="hint" class="mt-1 text-xs text-white/40">{{ hint }}</p>
+    <p class="text-xs uppercase tracking-wide text-slate-500">{{ label }}</p>
+    <p class="mt-1 font-display text-2xl font-bold text-slate-900">{{ value }}</p>
+    <p v-if="hint" class="mt-1 text-xs text-slate-400">{{ hint }}</p>
   </div>
 </template>
 
@@ -28,8 +28,8 @@ withDefaults(
     iconColor?: string
   }>(),
   {
-    iconBg: 'bg-blue-500/15',
-    iconColor: 'text-blue-300',
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-600',
   },
 )
 </script>

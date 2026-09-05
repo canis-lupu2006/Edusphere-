@@ -1,16 +1,16 @@
-<template>
+﻿<template>
   <div class="glass-card flex h-[min(70vh,640px)] flex-col overflow-hidden">
     <div class="flex-1 space-y-4 overflow-y-auto p-5">
       <div v-if="!messages.length" class="flex h-full flex-col items-center justify-center text-center">
         <div
-          class="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/15 ring-4 ring-blue-500/20 shadow-glow"
+          class="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 ring-4 ring-blue-500/20 shadow-glow"
         >
-          <Sparkles class="h-9 w-9 text-blue-300" />
+          <Sparkles class="h-9 w-9 text-blue-600" />
         </div>
-        <p class="font-display text-xl font-semibold text-white">
+        <p class="font-display text-xl font-semibold text-slate-900">
           Expose-moi tes incompréhensions !
         </p>
-        <p class="mt-2 max-w-sm text-sm text-white/50">
+        <p class="mt-2 max-w-sm text-sm text-slate-500">
           Je t'aide à comprendre en te guidant pas à pas.
         </p>
       </div>
@@ -25,21 +25,21 @@
           :class="
             m.role === 'user'
               ? 'bg-blue-600 text-white'
-              : 'border border-white/10 bg-white/5 text-white/80'
+              : 'border border-slate-200 bg-slate-50 text-slate-700'
           "
         >
           {{ m.text }}
         </div>
       </div>
-      <p v-if="pending" class="text-xs text-white/35">Le tuteur réfléchit…</p>
+      <p v-if="pending" class="text-xs text-slate-400">Le tuteur réfléchit…</p>
     </div>
     <form
-      class="flex items-center gap-2 border-t border-white/10 p-4"
+      class="flex items-center gap-2 border-t border-slate-200 p-4"
       @submit.prevent="send"
     >
       <button
         type="button"
-        class="rounded-xl p-2.5 text-white/40 transition hover:bg-white/5 hover:text-white/70"
+        class="rounded-xl p-2.5 text-slate-400 transition hover:bg-slate-50 hover:text-slate-600"
         aria-label="Pièce jointe"
       >
         <Paperclip class="h-5 w-5" />

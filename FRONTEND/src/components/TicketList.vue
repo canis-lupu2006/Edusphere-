@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div>
-    <div v-if="loading" class="py-10 text-center text-white/40">Chargement…</div>
-    <div v-else-if="!tickets.length" class="glass-card py-10 text-center text-white/40">
+    <div v-if="loading" class="py-10 text-center text-slate-400">Chargement…</div>
+    <div v-else-if="!tickets.length" class="glass-card py-10 text-center text-slate-400">
       Aucun ticket pour le moment.
     </div>
     <ul v-else class="space-y-3">
@@ -18,12 +18,12 @@
             >
               {{ t.status || 'ouvert' }}
             </span>
-            <span v-if="t.courseTitre || t.courseId" class="text-xs text-white/40">
+            <span v-if="t.courseTitre || t.courseId" class="text-xs text-slate-400">
               {{ t.courseTitre || t.courseId }}
             </span>
           </div>
           <p class="font-medium">{{ t.eleveNom || t.eleveId || 'Élève' }}</p>
-          <p class="mt-1 text-sm text-white/55">{{ t.message }}</p>
+          <p class="mt-1 text-sm text-slate-500">{{ t.message }}</p>
         </div>
         <div class="flex shrink-0 gap-2">
           <slot name="actions" :ticket="t">
@@ -63,8 +63,8 @@ defineEmits<{
 }>()
 
 function statusClass(status?: TicketStatus) {
-  if (status === 'resolu') return 'bg-emerald-500/20 text-emerald-300'
-  if (status === 'en_cours') return 'bg-amber-500/20 text-amber-300'
-  return 'bg-blue-500/20 text-blue-300'
+  if (status === 'resolu') return 'bg-emerald-100 text-emerald-700'
+  if (status === 'en_cours') return 'bg-amber-100 text-amber-700'
+  return 'bg-blue-100 text-blue-700'
 }
 </script>

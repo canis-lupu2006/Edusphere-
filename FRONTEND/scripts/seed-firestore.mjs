@@ -115,31 +115,36 @@ async function seed() {
   const t = now()
 
   console.log('2) ecoles, classes, users…')
-  await setDoc(doc(db, 'ecoles', IDS.ecole), {
-    nom: 'Lycée Moderne de Lomé',
-    name: 'Lycée Moderne de Lomé',
-    region: 'Maritime',
-    ville: 'Lomé',
-    type: 'Lycée',
-    niveau: 'Secondaire',
-    elevesCount: 1250,
-    enseignantsCount: 78,
-    maitrise: 85,
-    usageHorsLigne: 18,
-    createdAt: t,
-  })
-  await setDoc(doc(db, 'ecoles', IDS.ecole2), {
-    nom: 'CEG de Kpélé-Atavié',
-    region: 'Plateaux',
-    ville: 'Kpélé',
-    type: 'Collège',
-    niveau: 'Secondaire',
-    elevesCount: 420,
-    enseignantsCount: 22,
-    maitrise: 28,
-    usageHorsLigne: 45,
-    createdAt: t,
-  })
+  const ecolesSeed = [
+    [IDS.ecole, 'Lycée Moderne de Lomé', 'Maritime', 'Lomé', 'Lycée', 'Secondaire', 1250, 78, 85, 18],
+    [IDS.ecole2, 'CEG de Kpélé-Atavié', 'Plateaux', 'Kpélé', 'Collège', 'Secondaire', 420, 22, 28, 45],
+    ['ecole_kara_1', 'Lycée de Kara', 'Kara', 'Kara', 'Lycée', 'Secondaire', 980, 54, 72, 22],
+    ['ecole_sokode', 'Lycée de Sokodé', 'Centrale', 'Sokodé', 'Lycée', 'Secondaire', 1100, 61, 68, 30],
+    ['ecole_dapaong', 'Lycée de Dapaong', 'Savanes', 'Dapaong', 'Lycée', 'Secondaire', 870, 48, 61, 35],
+    ['ecole_atakpame', 'CEG d\'Atakpamé', 'Plateaux', 'Atakpamé', 'CEG', 'Secondaire', 560, 31, 55, 28],
+    ['ecole_aneho', 'Lycée d\'Aného', 'Maritime', 'Aného', 'Lycée', 'Secondaire', 740, 39, 77, 15],
+    ['ecole_kpalime', 'Lycée de Kpalimé', 'Plateaux', 'Kpalimé', 'Lycée', 'Secondaire', 920, 50, 70, 20],
+    ['ecole_tsevie', 'CEG de Tsévié', 'Maritime', 'Tsévié', 'CEG', 'Secondaire', 390, 21, 48, 40],
+    ['ecole_bassar', 'Lycée de Bassar', 'Kara', 'Bassar', 'Lycée', 'Secondaire', 650, 34, 58, 33],
+    ['ecole_vogan', 'École primaire de Vogan', 'Maritime', 'Vogan', 'École primaire', 'Primaire', 280, 12, 64, 25],
+    ['ecole_notse', 'Lycée technique de Notsé', 'Plateaux', 'Notsé', 'Lycée technique', 'Technique', 510, 28, 52, 38],
+  ]
+  for (const [id, nom, region, ville, type, niveau, elevesCount, enseignantsCount, maitrise, usageHorsLigne] of ecolesSeed) {
+    await setDoc(doc(db, 'ecoles', id), {
+      nom,
+      name: nom,
+      region,
+      ville,
+      type,
+      niveau,
+      elevesCount,
+      enseignantsCount,
+      maitrise,
+      usageHorsLigne,
+      createdAt: t,
+    })
+  }
+  console.log(`  ✓ ${ecolesSeed.length} établissements`)
   await setDoc(doc(db, 'classes', IDS.classe), {
     nom: 'Terminale D',
     niveau: 'Terminale D',
@@ -522,23 +527,55 @@ async function seed() {
     createdAt: t,
   })
 
-  const chapters = [
-    ['ch1', 'Suites numériques', 'planifie', 'valides'],
-    ['ch2', 'Fonctions et dérivées', 'en_cours', 'valides'],
-    ['ch3', 'Probabilités conditionnelles', 'termine', 'valides'],
-    ['ch4', "Géométrie dans l'espace", 'a_planifier', 'en_attente'],
+  const programmeSubjects = [
+    ['Terminale D', 'Mathématiques', 12],
+    ['Terminale D', 'Physique-Chimie', 15],
+    ['Terminale D', 'Français', 10],
+    ['Terminale D', 'Histoire-Géographie', 15],
+    ['Terminale D', 'Anglais', 9],
+    ['Terminale D', 'SVT', 19],
+    ['Première D', 'Mathématiques', 11],
+    ['Première D', 'Physique-Chimie', 12],
+    ['Première D', 'Français', 9],
+    ['Première D', 'SVT', 14],
   ]
-  for (const [id, titre, status, contenusIA] of chapters) {
+  for (const [niveau, matiere, chapitresCount] of programmeSubjects) {
+    const id = `prog_${niveau}_${matiere}`.replace(/\s+/g, '_').toLowerCase()
+    await setDoc(doc(db, 'programmes', id), {
+      niveau,
+      matiere,
+      chapitresCount,
+      pays: 'TOGO',
+      updatedAt: t,
+    })
+  }
+
+  const chapters = [
+    ['ch1', 'Suites numériques', 'Mathématiques', 'Terminale D', 'planifie', 'valides'],
+    ['ch2', 'Fonctions et dérivées', 'Mathématiques', 'Terminale D', 'en_cours', 'valides'],
+    ['ch3', 'Probabilités conditionnelles', 'Mathématiques', 'Terminale D', 'termine', 'valides'],
+    ['ch4', "Géométrie dans l'espace", 'Mathématiques', 'Terminale D', 'a_planifier', 'en_attente'],
+    ['ch5', 'Intégrales', 'Mathématiques', 'Terminale D', 'planifie', 'valides'],
+    ['ch6', 'Circuits électriques', 'Physique-Chimie', 'Terminale D', 'en_cours', 'valides'],
+    ['ch7', 'Réactions d\'oxydoréduction', 'Physique-Chimie', 'Terminale D', 'planifie', 'en_attente'],
+    ['ch8', 'Dissertation littéraire', 'Français', 'Terminale D', 'en_cours', 'valides'],
+    ['ch9', 'Le monde depuis 1945', 'Histoire-Géographie', 'Terminale D', 'planifie', 'valides'],
+    ['ch10', 'Reading comprehension', 'Anglais', 'Terminale D', 'termine', 'valides'],
+    ['ch11', 'Génétique mendélienne', 'SVT', 'Terminale D', 'en_cours', 'valides'],
+    ['ch12', 'Écosystèmes tropicaux', 'SVT', 'Terminale D', 'planifie', 'valides'],
+  ]
+  for (const [id, titre, matiere, niveau, status, contenusIA] of chapters) {
     await setDoc(doc(db, 'program_chapters', id), {
       titre,
       pays: 'TOGO',
-      niveau: 'Terminale D',
-      matiere: 'Mathématiques',
+      niveau,
+      matiere,
       status,
       contenusIA,
       enseignantId: uids.enseignant,
     })
   }
+  console.log(`  ✓ ${programmeSubjects.length} fiches programmes + ${chapters.length} chapitres`)
 
   const notions = [
     ['c1', 'Suites géométriques', 24, 76],

@@ -251,6 +251,30 @@ export interface ProgramChapter {
   [key: string]: unknown
 }
 
+/** Fiche matière / niveau (vue ministère programmes) */
+export interface ProgramSubject {
+  id: string
+  niveau?: string
+  matiere?: string
+  chapitresCount?: number
+  pays?: string
+  [key: string]: unknown
+}
+
+/** Version PDF publiée d'un programme */
+export interface ProgramVersion {
+  id: string
+  niveau?: string
+  matiere?: string
+  fileName?: string
+  url?: string
+  storagePath?: string
+  version?: number
+  createdBy?: string | null
+  createdAt?: Timestamp | FieldValue
+  [key: string]: unknown
+}
+
 /** Compréhension d'une notion par classe */
 export interface ComprehensionTopic {
   id: string

@@ -1,55 +1,36 @@
-<template>
+﻿<template>
   <div>
-    <header class="mb-6 flex items-start justify-between gap-4">
-      <div>
-        <p class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-blue-400">
-          ESPACE ÉLÈVE
-        </p>
-        <h1 class="page-title">Exercices</h1>
-        <p class="page-sub">
-          Exercices progressifs générés à partir des chapitres et adaptés à ton niveau.
-        </p>
-      </div>
-      <button
-        type="button"
-        class="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10"
-        aria-label="Notifications"
-      >
-        <Bell class="h-5 w-5" />
-        <span
-          class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
-        >
-          2
-        </span>
-      </button>
-    </header>
+    <StudentPageHeader
+      title="Exercices"
+      subtitle="Exercices progressifs générés à partir des chapitres et adaptés à ton niveau."
+    />
 
-    <div class="mb-6 flex gap-6 border-b border-white/10">
+    <div class="mb-6 flex gap-1 overflow-x-auto border-b border-slate-200">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         type="button"
-        class="relative pb-3 text-sm font-medium transition"
-        :class="activeTab === tab.key ? 'text-blue-400' : 'text-white/45 hover:text-white/70'"
+        class="relative shrink-0 px-4 pb-3 text-sm font-medium transition"
+        :class="activeTab === tab.key ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'"
         @click="activeTab = tab.key"
       >
         {{ tab.label }}
         <span
           v-if="activeTab === tab.key"
-          class="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-blue-500"
+          class="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-blue-600"
         />
       </button>
     </div>
 
     <div class="glass-card overflow-hidden">
-      <div v-if="loading" class="py-12 text-center text-white/40">Chargement…</div>
-      <div v-else-if="!filtered.length" class="py-12 text-center text-white/40">
+      <div v-if="loading" class="py-12 text-center text-slate-400">Chargement…</div>
+      <div v-else-if="!filtered.length" class="py-12 text-center text-slate-400">
         Aucun exercice dans cet onglet.
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr class="border-b border-white/10 text-[10px] uppercase tracking-wider text-blue-300/70">
+            <tr class="border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500">
               <th class="px-5 py-3 font-semibold">Titre</th>
               <th class="px-3 py-3 font-semibold">Matières</th>
               <th class="px-3 py-3 font-semibold">Compétences</th>
@@ -63,7 +44,7 @@
             <tr
               v-for="row in filtered"
               :key="row.id"
-              class="cursor-pointer border-b border-white/5 transition hover:bg-white/[0.03]"
+              class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50"
               @click="goTo(row.id)"
             >
               <td class="px-5 py-4">
@@ -74,11 +55,11 @@
                   >
                     {{ subjectTheme(row.matiere).glyph }}
                   </div>
-                  <span class="font-medium">{{ row.titre || 'Exercice' }}</span>
+                  <span class="font-medium text-slate-900">{{ row.titre || 'Exercice' }}</span>
                 </div>
               </td>
-              <td class="px-3 py-4 text-white/70">{{ row.matiere || '—' }}</td>
-              <td class="px-3 py-4 text-white/55">{{ row.competence || '—' }}</td>
+              <td class="px-3 py-4 text-slate-600">{{ row.matiere || '—' }}</td>
+              <td class="px-3 py-4 text-slate-500">{{ row.competence || '—' }}</td>
               <td class="px-3 py-4">
                 <span
                   class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
@@ -95,11 +76,11 @@
                   {{ statusLabel(row.computedStatus) }}
                 </span>
               </td>
-              <td class="px-3 py-4 text-white/70">
+              <td class="px-3 py-4 text-slate-600">
                 {{ row.score != null ? `${row.score}%` : '—' }}
               </td>
               <td class="px-3 py-4 text-right">
-                <MoreVertical class="ml-auto h-4 w-4 text-white/30" />
+                <MoreVertical class="ml-auto h-4 w-4 text-slate-400" />
               </td>
             </tr>
           </tbody>
@@ -107,21 +88,21 @@
       </div>
 
       <div
-        class="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-5 py-3 text-xs text-white/45"
+        class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-5 py-3 text-xs text-slate-500"
       >
         <span>
           Affichage de 1 à {{ filtered.length }} sur {{ filtered.length }} exercices
         </span>
         <div class="flex items-center gap-2">
-          <button type="button" class="rounded-lg border border-white/10 px-2 py-1" disabled>
+          <button type="button" class="rounded-lg border border-slate-200 px-2 py-1" disabled>
             &lt;
           </button>
           <span class="rounded-lg bg-blue-600 px-2.5 py-1 font-semibold text-white">1</span>
-          <button type="button" class="rounded-lg border border-white/10 px-2 py-1" disabled>
+          <button type="button" class="rounded-lg border border-slate-200 px-2 py-1" disabled>
             &gt;
           </button>
         </div>
-        <span>Par page <strong class="text-white/70">10</strong></span>
+        <span>Par page <strong class="text-slate-700">10</strong></span>
       </div>
     </div>
   </div>
@@ -132,8 +113,9 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Unsubscribe } from 'firebase/firestore'
 import { collection, query, where, getDocs, onSnapshot, limit } from 'firebase/firestore'
-import { Bell, MoreVertical } from 'lucide-vue-next'
+import { MoreVertical } from 'lucide-vue-next'
 import type { Attempt, Exercise, ExerciseStatus } from '@/types/models'
+import StudentPageHeader from '@/components/StudentPageHeader.vue'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
 import { subjectTheme } from '@/utils/subjectTheme'
@@ -178,9 +160,9 @@ function diffLabel(d?: string) {
 
 function diffClass(d?: string) {
   const label = diffLabel(d)
-  if (label === 'Facile') return 'bg-emerald-500/15 text-emerald-300'
-  if (label === 'Difficile') return 'bg-rose-500/15 text-rose-300'
-  return 'bg-amber-500/15 text-amber-300'
+  if (label === 'Facile') return 'bg-emerald-100 text-emerald-700'
+  if (label === 'Difficile') return 'bg-rose-100 text-rose-700'
+  return 'bg-amber-100 text-amber-700'
 }
 
 function statusLabel(s: ExerciseStatus) {
@@ -190,9 +172,9 @@ function statusLabel(s: ExerciseStatus) {
 }
 
 function statusClass(s: ExerciseStatus) {
-  if (s === 'termine') return 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-  if (s === 'en_cours') return 'border-blue-500/40 bg-blue-500/10 text-blue-300'
-  return 'border-slate-500/40 bg-slate-500/10 text-slate-300'
+  if (s === 'termine') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+  if (s === 'en_cours') return 'border-blue-200 bg-blue-50 text-blue-700'
+  return 'border-slate-200 bg-slate-50 text-slate-600'
 }
 
 function resolveStatus(ex: Exercise, attempt?: Attempt): ExerciseStatus {

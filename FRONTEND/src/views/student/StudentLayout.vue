@@ -4,6 +4,8 @@
     space-label="ESPACE ÉLÈVE"
     :subtitle="auth.profile?.classeNom || auth.profile?.classeId || 'Élève'"
     accent="blue"
+    root-class="bg-[#F5F8FC] text-slate-900"
+    bg-pattern="bg-edu-radial"
   >
     <RouterView />
   </DashboardLayout>

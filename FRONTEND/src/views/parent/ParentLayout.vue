@@ -1,6 +1,6 @@
 <template>
-  <div class="flex min-h-screen bg-[#F7F3EB] text-[#1a3d32]">
-    <aside class="flex h-screen w-60 shrink-0 flex-col border-r border-[#1a5c45]/10 bg-[#faf7f1]">
+  <div class="flex h-screen overflow-hidden bg-[#F7F3EB] text-[#1a3d32]">
+    <aside class="flex h-full w-60 shrink-0 flex-col border-r border-[#1a5c45]/10 bg-[#faf7f1]">
       <div class="flex items-center gap-3 px-5 py-5">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1a5c45] text-white">
           <BookOpen class="h-5 w-5" />
@@ -57,7 +57,7 @@
       </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto px-6 py-6 md:px-8">
+    <main class="min-h-0 flex-1 overflow-y-auto px-6 py-6 md:px-8">
       <RouterView />
     </main>
   </div>
