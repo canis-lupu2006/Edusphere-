@@ -208,26 +208,46 @@ function rebuildRows() {
 onMounted(async () => {
   const classeId = auth.profile?.classeId
   const uid = auth.user?.uid
+  const map = new Map<string, ExerciseRow>()
 
   try {
     if (classeId) {
+      // Exercices assignés directement à la classe
+      try {
+        const byClasse = await getDocs(
+          query(collection(db, 'exercises'), where('classeId', '==', classeId)),
+        )
+        byClasse.docs.forEach((d) => {
+          const data = { id: d.id, ...d.data() } as Exercise
+          map.set(d.id, {
+            ...data,
+            score: null,
+            computedStatus: 'a_faire',
+            difficulte: data.difficulte || 'moyen',
+          })
+        })
+      } catch {
+        /* index */
+      }
+
       const cq = query(collection(db, 'courses'), where('classeId', '==', classeId))
       const cSnap = await getDocs(cq)
       const ids = cSnap.docs.map((d) => d.id).slice(0, 10)
       if (ids.length) {
         const eq = query(collection(db, 'exercises'), where('courseId', 'in', ids))
         const eSnap = await getDocs(eq)
-        exercises.value = eSnap.docs.map((d) => {
+        eSnap.docs.forEach((d) => {
           const data = { id: d.id, ...d.data() } as Exercise
-          return {
+          map.set(d.id, {
             ...data,
             score: null,
-            computedStatus: 'a_faire' as ExerciseStatus,
+            computedStatus: 'a_faire',
             difficulte: data.difficulte || 'moyen',
-          }
+          })
         })
       }
     }
+    exercises.value = Array.from(map.values())
   } finally {
     loading.value = false
   }

@@ -68,18 +68,28 @@ export interface ExerciseQuestion {
 
 export type ExerciseDifficulty = 'facile' | 'moyen' | 'difficile' | string
 export type ExerciseStatus = 'a_faire' | 'en_cours' | 'termine' | string
+export type ExerciseKind = 'qcm' | 'pdf' | 'mixte' | string
+export type ExerciseSource = 'enseignant' | 'ia' | string
 
 export interface Exercise {
   id: string
   titre?: string
   description?: string
   courseId?: string
+  classeId?: string
   enseignantId?: string
+  enseignantNom?: string
   matiere?: string
   competence?: string
   difficulte?: ExerciseDifficulty
   status?: ExerciseStatus
+  kind?: ExerciseKind
+  source?: ExerciseSource
+  documentUrl?: string
+  documentName?: string
+  storagePath?: string
   questions?: ExerciseQuestion[]
+  homeworkId?: string
   createdAt?: Timestamp | FieldValue
   [key: string]: unknown
 }
@@ -133,11 +143,13 @@ export interface Attempt {
   exerciseId?: string
   courseId?: string
   classeId?: string
+  matiere?: string
   answers?: Record<string, unknown>
   score?: number
   scoreDetail?: ScoreResult
   recommendation?: string
   analyse?: string
+  lacunes?: string[]
   createdAt?: Timestamp | FieldValue
   [key: string]: unknown
 }
@@ -388,10 +400,21 @@ export interface Group {
   description?: string
   memberIds?: string[]
   membresCount?: number
+  inviteCode?: string
+  createdBy?: string
   proposeIA?: boolean
   status?: 'pending' | 'actif' | 'active' | 'refuse' | string
   temporaires?: boolean
   expiresInDays?: number
+  createdAt?: Timestamp | FieldValue
+  [key: string]: unknown
+}
+
+export interface GroupMessage {
+  id: string
+  fromId?: string
+  fromNom?: string
+  text?: string
   createdAt?: Timestamp | FieldValue
   [key: string]: unknown
 }
