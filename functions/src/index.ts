@@ -1,10 +1,12 @@
 /**
  * EduSphere — Cloud Functions
- * Callable: tutorAI, analyzeAttempt, getTicketSummary
+ * Callable: tutorAI, analyzeAttempt, getTicketSummary,
+ * createSchoolWithAdmin, createTeacher, createStudentWithParent
  */
 import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {initializeApp} from "firebase-admin/app";
+import {getAuth} from "firebase-admin/auth";
 import {
   getFirestore,
   FieldValue,
@@ -16,6 +18,7 @@ setGlobalOptions({maxInstances: 10, region: "us-central1"});
 
 initializeApp();
 const db = getFirestore();
+const authAdmin = getAuth();
 
 type ScoreDetail = {
   questionId?: string;
@@ -387,4 +390,479 @@ export const getTicketSummary = onCall(async (request) => {
   });
 
   return {summary, count: tickets.length};
+});
+
+/**
+ * Génère un mot de passe temporaire lisible.
+ * @return {string} Mot de passe
+ */
+function generateTempPassword(): string {
+  const n = Math.floor(100000 + Math.random() * 900000);
+  return `EduSphere${n}!`;
+}
+
+/**
+ * Vérifie que l'appelant a le rôle ministère (ou admin).
+ * @param {string} uid UID Firebase
+ * @return {Promise<{role: string, ecoleId?: string, ecoleNom?: string}>}
+ */
+async function assertMinistereOrAdmin(uid: string): Promise<{
+  role: string;
+  ecoleId?: string;
+  ecoleNom?: string;
+}> {
+  const snap = await db.collection("users").doc(uid).get();
+  const data = snap.exists ? snap.data() || {} : {};
+  const role = String(data.role || "");
+  if (role !== "ministere" && role !== "admin") {
+    throw new HttpsError(
+      "permission-denied",
+      "Réservé à l'administration.",
+    );
+  }
+  return {
+    role,
+    ecoleId: data.ecoleId ? String(data.ecoleId) : undefined,
+    ecoleNom: data.ecoleNom ? String(data.ecoleNom) : undefined,
+  };
+}
+
+/**
+ * Crée un user Auth + profil Firestore, avec rollback Auth si échec profil.
+ * @param {object} p Params
+ * @return {Promise<{uid: string, password: string}>}
+ */
+async function createAuthProfile(p: {
+  email: string;
+  nom: string;
+  role: string;
+  profile: Record<string, unknown>;
+  createdBy: string;
+}): Promise<{uid: string; password: string}> {
+  const password = generateTempPassword();
+  const userRecord = await authAdmin.createUser({
+    email: p.email,
+    password,
+    displayName: p.nom,
+    emailVerified: false,
+    disabled: false,
+  });
+  try {
+    await db.collection("users").doc(userRecord.uid).set({
+      role: p.role,
+      email: p.email,
+      displayName: p.nom,
+      nom: p.nom,
+      status: "actif",
+      mustChangePassword: true,
+      createdAt: FieldValue.serverTimestamp(),
+      createdBy: p.createdBy,
+      ...p.profile,
+    });
+  } catch (e) {
+    try {
+      await authAdmin.deleteUser(userRecord.uid);
+    } catch {
+      /* ignore */
+    }
+    throw e;
+  }
+  return {uid: userRecord.uid, password};
+}
+
+/**
+ * Mappe les erreurs Auth vers HttpsError.
+ * @param {unknown} e Erreur
+ * @param {string} label Contexte
+ * @return {never}
+ */
+function throwMappedAuthError(e: unknown, label: string): never {
+  const err = e as {code?: string; message?: string};
+  logger.error(label, err);
+  if (err.code === "auth/email-already-exists") {
+    throw new HttpsError(
+      "already-exists",
+      "Cet email est déjà utilisé.",
+    );
+  }
+  if (err instanceof HttpsError) throw err;
+  throw new HttpsError(
+    "internal",
+    err.message || "Échec de la création.",
+  );
+}
+
+/**
+ * Crée un établissement + compte admin lié.
+ * Input: { nom, region, ville, type, niveau?, elevesCount?, enseignantsCount?,
+ *          maitrise?, adminEmail, adminNom }
+ * Output: { ecoleId, adminUid, adminEmail, tempPassword }
+ */
+export const createSchoolWithAdmin = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Connexion requise.");
+  }
+  await assertMinistereOrAdmin(request.auth.uid);
+
+  const data = request.data || {};
+  const nom = String(data.nom || "").trim();
+  const region = String(data.region || "").trim();
+  const ville = String(data.ville || "").trim();
+  const type = String(data.type || "").trim();
+  const niveau = String(data.niveau || "Secondaire").trim();
+  const adminEmail = String(data.adminEmail || "").trim().toLowerCase();
+  const adminNom = String(data.adminNom || "").trim();
+  const elevesCount = Number(data.elevesCount) || 0;
+  const enseignantsCount = Number(data.enseignantsCount) || 0;
+  const maitrise = Math.min(100, Math.max(0, Number(data.maitrise) || 0));
+
+  if (!nom || !region || !ville || !type) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Nom, région, ville et type sont requis.",
+    );
+  }
+  if (!adminEmail || !adminEmail.includes("@")) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Email admin invalide.",
+    );
+  }
+  if (!adminNom) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Le nom de l'administrateur est requis.",
+    );
+  }
+
+  const ecoleRef = db.collection("ecoles").doc();
+  let adminUid = "";
+
+  try {
+    await ecoleRef.set({
+      nom,
+      name: nom,
+      region,
+      ville,
+      type,
+      niveau,
+      elevesCount,
+      enseignantsCount,
+      maitrise,
+      usageHorsLigne: 0,
+      adminEmail,
+      adminNom,
+      createdBy: request.auth.uid,
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    const created = await createAuthProfile({
+      email: adminEmail,
+      nom: adminNom,
+      role: "admin",
+      createdBy: request.auth.uid,
+      profile: {
+        ecoleId: ecoleRef.id,
+        ecoleNom: nom,
+      },
+    });
+    adminUid = created.uid;
+
+    await ecoleRef.update({
+      adminUid,
+    });
+
+    logger.info("createSchoolWithAdmin", {
+      ecoleId: ecoleRef.id,
+      adminUid,
+      by: request.auth.uid,
+    });
+
+    return {
+      ecoleId: ecoleRef.id,
+      adminUid,
+      adminEmail,
+      adminNom,
+      tempPassword: created.password,
+      ecoleNom: nom,
+    };
+  } catch (e: unknown) {
+    if (adminUid) {
+      try {
+        await authAdmin.deleteUser(adminUid);
+      } catch {
+        /* ignore */
+      }
+      try {
+        await db.collection("users").doc(adminUid).delete();
+      } catch {
+        /* ignore */
+      }
+    }
+    try {
+      await ecoleRef.delete();
+    } catch {
+      /* ignore */
+    }
+    throwMappedAuthError(e, "createSchoolWithAdmin failed");
+  }
+});
+
+/**
+ * Crée un enseignant pour l'école de l'admin connecté.
+ * Input: { nom, email, classeId? }
+ */
+export const createTeacher = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Connexion requise.");
+  }
+  const caller = await assertMinistereOrAdmin(request.auth.uid);
+  if (caller.role === "admin" && !caller.ecoleId) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Aucune école liée à ce compte admin.",
+    );
+  }
+
+  const data = request.data || {};
+  const nom = String(data.nom || "").trim();
+  const email = String(data.email || "").trim().toLowerCase();
+  const classeId = data.classeId ? String(data.classeId).trim() : "";
+
+  if (!nom) {
+    throw new HttpsError("invalid-argument", "Le nom est requis.");
+  }
+  if (!email || !email.includes("@")) {
+    throw new HttpsError("invalid-argument", "Email invalide.");
+  }
+
+  let ecoleId = caller.ecoleId || "";
+  let ecoleNom = caller.ecoleNom || "";
+  let classeNom = "";
+  const classeIds: string[] = [];
+
+  if (classeId) {
+    const classeSnap = await db.collection("classes").doc(classeId).get();
+    if (!classeSnap.exists) {
+      throw new HttpsError("not-found", "Classe introuvable.");
+    }
+    const c = classeSnap.data() || {};
+    if (caller.role === "admin" && c.ecoleId && c.ecoleId !== caller.ecoleId) {
+      throw new HttpsError(
+        "permission-denied",
+        "Cette classe n'appartient pas à votre école.",
+      );
+    }
+    classeNom = String(c.nom || c.niveau || "");
+    classeIds.push(classeId);
+    if (!ecoleId && c.ecoleId) {
+      ecoleId = String(c.ecoleId);
+    }
+  }
+
+  if (!ecoleId) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Impossible de déterminer l'école.",
+    );
+  }
+  if (!ecoleNom) {
+    const ecoleSnap = await db.collection("ecoles").doc(ecoleId).get();
+    ecoleNom = String(ecoleSnap.data()?.nom || ecoleSnap.data()?.name || "");
+  }
+
+  try {
+    const created = await createAuthProfile({
+      email,
+      nom,
+      role: "enseignant",
+      createdBy: request.auth.uid,
+      profile: {
+        ecoleId,
+        ecoleNom,
+        classeIds,
+        classeId: classeId || null,
+        classeNom: classeNom || null,
+      },
+    });
+
+    if (classeId) {
+      await db.collection("classes").doc(classeId).update({
+        enseignantIds: FieldValue.arrayUnion(created.uid),
+      });
+    }
+
+    logger.info("createTeacher", {uid: created.uid, ecoleId});
+    return {
+      uid: created.uid,
+      email,
+      nom,
+      tempPassword: created.password,
+      role: "enseignant",
+      ecoleId,
+      classeId: classeId || null,
+      classeNom: classeNom || null,
+    };
+  } catch (e) {
+    throwMappedAuthError(e, "createTeacher failed");
+  }
+});
+
+/**
+ * Crée un élève + un parent liés.
+ * Input: { eleveNom, eleveEmail, classeId, parentNom, parentEmail }
+ */
+export const createStudentWithParent = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Connexion requise.");
+  }
+  const caller = await assertMinistereOrAdmin(request.auth.uid);
+  if (caller.role === "admin" && !caller.ecoleId) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Aucune école liée à ce compte admin.",
+    );
+  }
+
+  const data = request.data || {};
+  const eleveNom = String(data.eleveNom || "").trim();
+  const eleveEmail = String(data.eleveEmail || "").trim().toLowerCase();
+  const parentNom = String(data.parentNom || "").trim();
+  const parentEmail = String(data.parentEmail || "").trim().toLowerCase();
+  const classeId = String(data.classeId || "").trim();
+
+  if (!eleveNom || !parentNom) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Noms élève et parent requis.",
+    );
+  }
+  if (!eleveEmail.includes("@") || !parentEmail.includes("@")) {
+    throw new HttpsError("invalid-argument", "Emails invalides.");
+  }
+  if (eleveEmail === parentEmail) {
+    throw new HttpsError(
+      "invalid-argument",
+      "L'élève et le parent doivent avoir des emails distincts.",
+    );
+  }
+  if (!classeId) {
+    throw new HttpsError("invalid-argument", "La classe est requise.");
+  }
+
+  const classeSnap = await db.collection("classes").doc(classeId).get();
+  if (!classeSnap.exists) {
+    throw new HttpsError("not-found", "Classe introuvable.");
+  }
+  const classe = classeSnap.data() || {};
+  if (caller.role === "admin" && classe.ecoleId &&
+      classe.ecoleId !== caller.ecoleId) {
+    throw new HttpsError(
+      "permission-denied",
+      "Cette classe n'appartient pas à votre école.",
+    );
+  }
+
+  const ecoleId = String(
+    caller.ecoleId || classe.ecoleId || "",
+  );
+  if (!ecoleId) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Impossible de déterminer l'école.",
+    );
+  }
+  let ecoleNom = caller.ecoleNom || "";
+  if (!ecoleNom) {
+    const ecoleSnap = await db.collection("ecoles").doc(ecoleId).get();
+    ecoleNom = String(ecoleSnap.data()?.nom || ecoleSnap.data()?.name || "");
+  }
+  const classeNom = String(classe.nom || classe.niveau || "");
+
+  let eleveUid = "";
+  let parentUid = "";
+  let elevePassword = "";
+  let parentPassword = "";
+
+  try {
+    const eleve = await createAuthProfile({
+      email: eleveEmail,
+      nom: eleveNom,
+      role: "eleve",
+      createdBy: request.auth.uid,
+      profile: {
+        ecoleId,
+        ecoleNom,
+        classeId,
+        classeNom,
+        moyenne: 0,
+        streak: 0,
+      },
+    });
+    eleveUid = eleve.uid;
+    elevePassword = eleve.password;
+
+    const parent = await createAuthProfile({
+      email: parentEmail,
+      nom: parentNom,
+      role: "parent",
+      createdBy: request.auth.uid,
+      profile: {
+        ecoleId,
+        ecoleNom,
+        enfantIds: [eleveUid],
+      },
+    });
+    parentUid = parent.uid;
+    parentPassword = parent.password;
+
+    await db.collection("users").doc(eleveUid).update({
+      parentId: parentUid,
+      parentEmail,
+    });
+
+    await db.collection("classes").doc(classeId).update({
+      eleveIds: FieldValue.arrayUnion(eleveUid),
+    });
+
+    logger.info("createStudentWithParent", {
+      eleveUid,
+      parentUid,
+      ecoleId,
+      classeId,
+    });
+
+    return {
+      eleve: {
+        uid: eleveUid,
+        email: eleveEmail,
+        nom: eleveNom,
+        tempPassword: elevePassword,
+      },
+      parent: {
+        uid: parentUid,
+        email: parentEmail,
+        nom: parentNom,
+        tempPassword: parentPassword,
+      },
+      classeId,
+      classeNom,
+      ecoleId,
+    };
+  } catch (e) {
+    // Rollback
+    for (const uid of [parentUid, eleveUid].filter(Boolean)) {
+      try {
+        await authAdmin.deleteUser(uid);
+      } catch {
+        /* ignore */
+      }
+      try {
+        await db.collection("users").doc(uid).delete();
+      } catch {
+        /* ignore */
+      }
+    }
+    throwMappedAuthError(e, "createStudentWithParent failed");
+  }
 });

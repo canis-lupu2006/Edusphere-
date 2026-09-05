@@ -90,22 +90,18 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-emerald-950/40 p-4"
       @click.self="closeForm"
     >
-      <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+      <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
         <h2 class="font-display text-lg font-semibold text-emerald-950">
           Nouvel établissement
         </h2>
-        <p class="mt-1 text-sm text-emerald-900/50">Renseignez les informations de base.</p>
+        <p class="mt-1 text-sm text-emerald-900/50">
+          L’établissement et le compte admin seront créés ensemble.
+        </p>
 
         <form class="mt-5 space-y-3" @submit.prevent="submit">
           <label class="block text-sm">
             <span class="mb-1 block text-xs font-medium text-emerald-900/60">Nom *</span>
-            <input
-              v-model="form.nom"
-              required
-              type="text"
-              placeholder="Lycée…"
-              class="field"
-            />
+            <input v-model="form.nom" required type="text" placeholder="Lycée…" class="field" />
           </label>
           <div class="grid gap-3 sm:grid-cols-2">
             <label class="block text-sm">
@@ -148,14 +144,36 @@
             </label>
             <label class="block text-sm">
               <span class="mb-1 block text-xs font-medium text-emerald-900/60">Maîtrise %</span>
-              <input
-                v-model.number="form.maitrise"
-                type="number"
-                min="0"
-                max="100"
-                class="field"
-              />
+              <input v-model.number="form.maitrise" type="number" min="0" max="100" class="field" />
             </label>
+          </div>
+
+          <div class="rounded-xl border border-emerald-900/10 bg-[#f4f7f5] p-3">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-[#166534]">
+              Compte administrateur
+            </p>
+            <div class="space-y-3">
+              <label class="block text-sm">
+                <span class="mb-1 block text-xs font-medium text-emerald-900/60">Nom admin *</span>
+                <input
+                  v-model="form.adminNom"
+                  required
+                  type="text"
+                  placeholder="Ex. Sarah Adjowa"
+                  class="field !bg-white"
+                />
+              </label>
+              <label class="block text-sm">
+                <span class="mb-1 block text-xs font-medium text-emerald-900/60">Email admin *</span>
+                <input
+                  v-model="form.adminEmail"
+                  required
+                  type="email"
+                  placeholder="admin@lycee.edu.tg"
+                  class="field !bg-white"
+                />
+              </label>
+            </div>
           </div>
 
           <p v-if="formError" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -169,10 +187,52 @@
               class="rounded-xl bg-[#166534] px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
               :disabled="saving"
             >
-              {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+              {{ saving ? 'Création…' : 'Créer école + admin' }}
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Identifiants générés -->
+    <div
+      v-if="createdCreds"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-emerald-950/40 p-4"
+      @click.self="createdCreds = null"
+    >
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h2 class="font-display text-lg font-semibold text-emerald-950">
+          Établissement créé
+        </h2>
+        <p class="mt-1 text-sm text-emerald-900/55">
+          Transmets ces identifiants à l’administrateur de
+          <strong class="text-emerald-950">{{ createdCreds.ecoleNom }}</strong>.
+          Ils ne seront plus réaffichés.
+        </p>
+        <div class="mt-4 space-y-2 rounded-xl border border-emerald-900/10 bg-[#f4f7f5] p-4 text-sm">
+          <p>
+            <span class="text-emerald-900/50">Email</span><br />
+            <span class="font-mono font-semibold text-emerald-950">{{ createdCreds.adminEmail }}</span>
+          </p>
+          <p>
+            <span class="text-emerald-900/50">Mot de passe temporaire</span><br />
+            <span class="font-mono font-semibold text-emerald-950">{{ createdCreds.tempPassword }}</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          class="mt-3 w-full rounded-xl border border-emerald-900/15 bg-white py-2.5 text-sm font-medium text-[#166534] hover:bg-emerald-50"
+          @click="copyCreds"
+        >
+          {{ copied ? 'Copié !' : 'Copier email + mot de passe' }}
+        </button>
+        <button
+          type="button"
+          class="mt-3 w-full rounded-xl bg-[#166534] py-2.5 text-sm font-semibold text-white hover:bg-emerald-800"
+          @click="createdCreds = null"
+        >
+          J’ai noté les identifiants
+        </button>
       </div>
     </div>
   </div>
@@ -181,19 +241,15 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, reactive, ref, type Ref } from 'vue'
 import { Plus, Search } from 'lucide-vue-next'
-import { addDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore'
+import { collection, getDocs } from 'firebase/firestore'
 import { db } from '@/firebase'
+import { useCloudFunctions, type CreateSchoolResult } from '@/composables/useCloudFunctions'
 import type { School } from '@/types/models'
 
-const REGIONS = [
-  'Maritime',
-  'Plateaux',
-  'Centrale',
-  'Kara',
-  'Savanes',
-]
-
+const REGIONS = ['Maritime', 'Plateaux', 'Centrale', 'Kara', 'Savanes']
 const TYPES = ['Lycée', 'Collège', 'CEG', 'Lycée technique', 'École primaire']
+
+const { createSchoolWithAdmin } = useCloudFunctions()
 
 const schools = ref<School[]>([])
 const loading = ref(true)
@@ -202,6 +258,8 @@ const ministereSearch = inject<Ref<string>>('ministereSearch', ref(''))
 const showForm = ref(false)
 const saving = ref(false)
 const formError = ref('')
+const createdCreds = ref<CreateSchoolResult | null>(null)
+const copied = ref(false)
 
 const form = reactive({
   nom: '',
@@ -212,6 +270,8 @@ const form = reactive({
   elevesCount: 0,
   enseignantsCount: 0,
   maitrise: 0,
+  adminNom: '',
+  adminEmail: '',
 })
 
 const filter = computed({
@@ -248,6 +308,8 @@ function openForm() {
     elevesCount: 0,
     enseignantsCount: 0,
     maitrise: 0,
+    adminNom: '',
+    adminEmail: '',
   })
   showForm.value = true
 }
@@ -256,13 +318,26 @@ function closeForm() {
   showForm.value = false
 }
 
+async function copyCreds() {
+  if (!createdCreds.value) return
+  const text = `Email: ${createdCreds.value.adminEmail}\nMot de passe: ${createdCreds.value.tempPassword}`
+  try {
+    await navigator.clipboard.writeText(text)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch {
+    /* ignore */
+  }
+}
+
 async function submit() {
   saving.value = true
   formError.value = ''
   try {
-    const payload = {
+    const result = await createSchoolWithAdmin({
       nom: form.nom.trim(),
-      name: form.nom.trim(),
       region: form.region,
       ville: form.ville.trim(),
       type: form.type,
@@ -270,17 +345,35 @@ async function submit() {
       elevesCount: Number(form.elevesCount) || 0,
       enseignantsCount: Number(form.enseignantsCount) || 0,
       maitrise: Math.min(100, Math.max(0, Number(form.maitrise) || 0)),
-      usageHorsLigne: 0,
-      createdAt: serverTimestamp(),
-    }
-    const refDoc = await addDoc(collection(db, 'ecoles'), payload)
+      adminNom: form.adminNom.trim(),
+      adminEmail: form.adminEmail.trim(),
+    })
     schools.value = [
-      { id: refDoc.id, ...payload, createdAt: undefined },
+      {
+        id: result.ecoleId,
+        nom: result.ecoleNom,
+        name: result.ecoleNom,
+        region: form.region,
+        ville: form.ville.trim(),
+        type: form.type,
+        niveau: form.niveau,
+        elevesCount: Number(form.elevesCount) || 0,
+        enseignantsCount: Number(form.enseignantsCount) || 0,
+        maitrise: Number(form.maitrise) || 0,
+      },
       ...schools.value,
     ].sort((a, b) => (b.maitrise ?? 0) - (a.maitrise ?? 0))
     closeForm()
-  } catch (e) {
-    formError.value = e instanceof Error ? e.message : 'Impossible d’enregistrer.'
+    createdCreds.value = result
+  } catch (e: unknown) {
+    const err = e as { message?: string; code?: string }
+    const msg = err.message || 'Impossible de créer l’établissement.'
+    if (msg.includes('not-found') || msg.includes('NOT_FOUND') || msg.includes('404')) {
+      formError.value =
+        'Cloud Function indisponible. Déploie les functions (plan Blaze) ou lance l’émulateur.'
+    } else {
+      formError.value = msg.replace(/^Firebase:\s*/i, '').replace(/\s*\(.*\)\s*$/, '')
+    }
   } finally {
     saving.value = false
   }

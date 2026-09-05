@@ -6,16 +6,20 @@
           ADMINISTRATION
         </p>
         <h1 class="page-title">Élèves & Enseignants</h1>
-        <p class="page-sub">Gérer les comptes, rôles et statuts.</p>
+        <p class="page-sub">Créer les comptes et gérer rôles / statuts.</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <button type="button" class="btn-secondary text-sm" @click="onImport">
           <Upload class="h-4 w-4" />
           Importer
         </button>
-        <button type="button" class="btn-primary text-sm !from-emerald-600 !to-emerald-500" @click="onAdd">
+        <button
+          type="button"
+          class="btn-primary text-sm !from-emerald-600 !to-emerald-500"
+          @click="openAdd"
+        >
           <Plus class="h-4 w-4" />
-          Ajouter
+          Ajouter {{ tab === 'eleve' ? 'élève' : 'enseignant' }}
         </button>
       </div>
     </header>
@@ -80,7 +84,7 @@
       </div>
       <select v-model="filtreClasse" class="input-field !w-auto !pl-4">
         <option value="">Classe (Toutes)</option>
-        <option v-for="c in classes" :key="c" :value="c">{{ c }}</option>
+        <option v-for="c in classList" :key="c.id" :value="c.nom">{{ c.nom }}</option>
       </select>
       <select v-model="filtreStatut" class="input-field !w-auto !pl-4">
         <option value="">Statut (Tous)</option>
@@ -106,12 +110,12 @@
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
                 <div
-                  class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-xs font-bold text-emerald-200"
+                  class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800"
                 >
                   {{ initials(u) }}
                 </div>
                 <div>
-                  <p class="font-medium">{{ displayName(u) }}</p>
+                  <p class="font-medium text-slate-900">{{ displayName(u) }}</p>
                   <p class="text-xs text-slate-400">{{ u.email || '—' }}</p>
                 </div>
               </div>
@@ -164,13 +168,155 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Modal enseignant -->
+    <div
+      v-if="showTeacherForm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+      @click.self="showTeacherForm = false"
+    >
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h2 class="font-display text-lg font-semibold text-slate-900">Nouvel enseignant</h2>
+        <p class="mt-1 text-sm text-slate-500">Un compte Auth sera créé automatiquement.</p>
+        <form class="mt-5 space-y-3" @submit.prevent="submitTeacher">
+          <label class="block text-sm">
+            <span class="mb-1 block text-xs font-medium text-slate-500">Nom *</span>
+            <input v-model="teacherForm.nom" required type="text" class="field" />
+          </label>
+          <label class="block text-sm">
+            <span class="mb-1 block text-xs font-medium text-slate-500">Email *</span>
+            <input v-model="teacherForm.email" required type="email" class="field" />
+          </label>
+          <label class="block text-sm">
+            <span class="mb-1 block text-xs font-medium text-slate-500">Classe (optionnel)</span>
+            <select v-model="teacherForm.classeId" class="field">
+              <option value="">Aucune</option>
+              <option v-for="c in classList" :key="c.id" :value="c.id">{{ c.nom }}</option>
+            </select>
+          </label>
+          <p v-if="formError" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{{ formError }}</p>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" class="btn-ghost" @click="showTeacherForm = false">Annuler</button>
+            <button type="submit" class="btn-save" :disabled="saving">
+              {{ saving ? 'Création…' : 'Créer le compte' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal élève + parent -->
+    <div
+      v-if="showStudentForm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+      @click.self="showStudentForm = false"
+    >
+      <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+        <h2 class="font-display text-lg font-semibold text-slate-900">Nouvel élève</h2>
+        <p class="mt-1 text-sm text-slate-500">
+          Crée aussi le compte parent lié (emails distincts).
+        </p>
+        <form class="mt-5 space-y-3" @submit.prevent="submitStudent">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-emerald-700">Élève</p>
+            <div class="space-y-3">
+              <label class="block text-sm">
+                <span class="mb-1 block text-xs font-medium text-slate-500">Nom *</span>
+                <input v-model="studentForm.eleveNom" required type="text" class="field !bg-white" />
+              </label>
+              <label class="block text-sm">
+                <span class="mb-1 block text-xs font-medium text-slate-500">Email *</span>
+                <input v-model="studentForm.eleveEmail" required type="email" class="field !bg-white" />
+              </label>
+              <label class="block text-sm">
+                <span class="mb-1 block text-xs font-medium text-slate-500">Classe *</span>
+                <select v-model="studentForm.classeId" required class="field !bg-white">
+                  <option value="" disabled>Choisir une classe</option>
+                  <option v-for="c in classList" :key="c.id" :value="c.id">{{ c.nom }}</option>
+                </select>
+              </label>
+              <p v-if="!classList.length" class="text-xs text-amber-600">
+                Aucune classe dans cette école. Créez-en une dans Firestore / seed avant d’ajouter un élève.
+              </p>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-emerald-700">Parent</p>
+            <div class="space-y-3">
+              <label class="block text-sm">
+                <span class="mb-1 block text-xs font-medium text-slate-500">Nom *</span>
+                <input v-model="studentForm.parentNom" required type="text" class="field !bg-white" />
+              </label>
+              <label class="block text-sm">
+                <span class="mb-1 block text-xs font-medium text-slate-500">Email *</span>
+                <input v-model="studentForm.parentEmail" required type="email" class="field !bg-white" />
+              </label>
+            </div>
+          </div>
+
+          <p v-if="formError" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{{ formError }}</p>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" class="btn-ghost" @click="showStudentForm = false">Annuler</button>
+            <button type="submit" class="btn-save" :disabled="saving || !classList.length">
+              {{ saving ? 'Création…' : 'Créer élève + parent' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Identifiants -->
+    <div
+      v-if="creds"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+      @click.self="creds = null"
+    >
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h2 class="font-display text-lg font-semibold text-slate-900">Comptes créés</h2>
+        <p class="mt-1 text-sm text-slate-500">
+          Note ces identifiants maintenant — ils ne seront plus réaffichés.
+        </p>
+        <div class="mt-4 space-y-3">
+          <div
+            v-for="(c, i) in creds"
+            :key="i"
+            class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm"
+          >
+            <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">{{ c.label }}</p>
+            <p class="mt-2">
+              <span class="text-slate-500">Email</span><br />
+              <span class="font-mono font-semibold text-slate-900">{{ c.email }}</span>
+            </p>
+            <p class="mt-2">
+              <span class="text-slate-500">Mot de passe</span><br />
+              <span class="font-mono font-semibold text-slate-900">{{ c.password }}</span>
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn-ghost mt-3 w-full" @click="copyCreds">
+          {{ copied ? 'Copié !' : 'Tout copier' }}
+        </button>
+        <button type="button" class="btn-save mt-2 w-full" @click="creds = null">
+          J’ai noté les identifiants
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import type { Unsubscribe } from 'firebase/firestore'
-import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore'
+import {
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore'
 import {
   Users,
   GraduationCap,
@@ -182,29 +328,51 @@ import {
 } from 'lucide-vue-next'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/auth'
-import type { UserProfile, UserRole } from '@/types/models'
+import {
+  useCloudFunctions,
+  type CreateStudentResult,
+  type CreateTeacherResult,
+} from '@/composables/useCloudFunctions'
+import type { ClassRecord, UserProfile, UserRole } from '@/types/models'
+
+interface CredLine {
+  label: string
+  email: string
+  password: string
+}
 
 const auth = useAuthStore()
+const { createTeacher, createStudentWithParent } = useCloudFunctions()
+
 const users = ref<UserProfile[]>([])
+const classList = ref<ClassRecord[]>([])
 const tab = ref<'eleve' | 'enseignant'>('eleve')
 const search = ref('')
 const filtreClasse = ref('')
 const filtreStatut = ref('')
 let unsub: Unsubscribe | null = null
 
+const showTeacherForm = ref(false)
+const showStudentForm = ref(false)
+const saving = ref(false)
+const formError = ref('')
+const creds = ref<CredLine[] | null>(null)
+const copied = ref(false)
+
+const teacherForm = reactive({ nom: '', email: '', classeId: '' })
+const studentForm = reactive({
+  eleveNom: '',
+  eleveEmail: '',
+  classeId: '',
+  parentNom: '',
+  parentEmail: '',
+})
+
 const elevesCount = computed(() => users.value.filter((u) => u.role === 'eleve').length)
 const enseignantsCount = computed(() => users.value.filter((u) => u.role === 'enseignant').length)
 const inactifsCount = computed(
   () => users.value.filter((u) => (u.status || 'actif') === 'inactif').length,
 )
-
-const classes = computed(() => {
-  const set = new Set<string>()
-  users.value.forEach((u) => {
-    if (u.classeNom) set.add(u.classeNom)
-  })
-  return [...set].sort()
-})
 
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase()
@@ -231,9 +399,103 @@ function initials(u: UserProfile) {
     .toUpperCase()
 }
 
-onMounted(() => {
+function openAdd() {
+  formError.value = ''
+  if (tab.value === 'enseignant') {
+    Object.assign(teacherForm, { nom: '', email: '', classeId: '' })
+    showTeacherForm.value = true
+  } else {
+    Object.assign(studentForm, {
+      eleveNom: '',
+      eleveEmail: '',
+      classeId: '',
+      parentNom: '',
+      parentEmail: '',
+    })
+    showStudentForm.value = true
+  }
+}
+
+function mapFnError(e: unknown) {
+  const err = e as { message?: string }
+  const msg = err.message || 'Échec de la création.'
+  if (msg.includes('not-found') || msg.includes('NOT_FOUND') || msg.includes('404')) {
+    return 'Cloud Function indisponible. Déploie les functions ou lance l’émulateur.'
+  }
+  return msg.replace(/^Firebase:\s*/i, '').replace(/\s*\(.*\)\s*$/, '')
+}
+
+async function submitTeacher() {
+  saving.value = true
+  formError.value = ''
+  try {
+    const result: CreateTeacherResult = await createTeacher({
+      nom: teacherForm.nom.trim(),
+      email: teacherForm.email.trim(),
+      classeId: teacherForm.classeId || undefined,
+    })
+    showTeacherForm.value = false
+    creds.value = [
+      { label: 'Enseignant', email: result.email, password: result.tempPassword },
+    ]
+  } catch (e) {
+    formError.value = mapFnError(e)
+  } finally {
+    saving.value = false
+  }
+}
+
+async function submitStudent() {
+  saving.value = true
+  formError.value = ''
+  try {
+    const result: CreateStudentResult = await createStudentWithParent({
+      eleveNom: studentForm.eleveNom.trim(),
+      eleveEmail: studentForm.eleveEmail.trim(),
+      classeId: studentForm.classeId,
+      parentNom: studentForm.parentNom.trim(),
+      parentEmail: studentForm.parentEmail.trim(),
+    })
+    showStudentForm.value = false
+    creds.value = [
+      {
+        label: 'Élève',
+        email: result.eleve.email,
+        password: result.eleve.tempPassword,
+      },
+      {
+        label: 'Parent',
+        email: result.parent.email,
+        password: result.parent.tempPassword,
+      },
+    ]
+  } catch (e) {
+    formError.value = mapFnError(e)
+  } finally {
+    saving.value = false
+  }
+}
+
+async function copyCreds() {
+  if (!creds.value) return
+  const text = creds.value
+    .map((c) => `${c.label}\nEmail: ${c.email}\nMot de passe: ${c.password}`)
+    .join('\n\n')
+  try {
+    await navigator.clipboard.writeText(text)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch {
+    /* ignore */
+  }
+}
+
+onMounted(async () => {
+  const ecoleId = auth.profile?.ecoleId
+
   unsub = onSnapshot(collection(db, 'users'), (snap) => {
-    const ecoleId = auth.profile?.ecoleId
     users.value = snap.docs
       .map((d) => {
         const data = d.data()
@@ -246,6 +508,18 @@ onMounted(() => {
       })
       .filter((u) => !ecoleId || !u.ecoleId || u.ecoleId === ecoleId)
   })
+
+  try {
+    if (ecoleId) {
+      const snap = await getDocs(query(collection(db, 'classes'), where('ecoleId', '==', ecoleId)))
+      classList.value = snap.docs.map((d) => ({ id: d.id, ...d.data() } as ClassRecord))
+    } else {
+      const snap = await getDocs(collection(db, 'classes'))
+      classList.value = snap.docs.map((d) => ({ id: d.id, ...d.data() } as ClassRecord))
+    }
+  } catch {
+    classList.value = []
+  }
 })
 
 onUnmounted(() => unsub?.())
@@ -260,12 +534,6 @@ function onStatusChange(u: UserProfile, event: Event) {
   void updateDoc(doc(db, 'users', u.uid), { status: target.value })
 }
 
-function onAdd() {
-  window.alert(
-    'La création Auth (email/mot de passe) se fait via la console Firebase. Vous pouvez ensuite mettre à jour le profil utilisateur ici (rôle / statut).',
-  )
-}
-
 function onImport() {
   window.alert('Import CSV non disponible dans cette version.')
 }
@@ -276,3 +544,46 @@ function editNote(u: UserProfile) {
   void updateDoc(doc(db, 'users', u.uid), { displayName: nom.trim() || displayName(u) })
 }
 </script>
+
+<style scoped>
+.field {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(226 232 240);
+  background: #f8fafc;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  outline: none;
+}
+.field:focus {
+  border-color: rgb(16 185 129 / 0.5);
+  box-shadow: 0 0 0 2px rgb(16 185 129 / 0.15);
+}
+.btn-ghost {
+  border-radius: 0.75rem;
+  border: 1px solid rgb(226 232 240);
+  background: white;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(71 85 105);
+}
+.btn-ghost:hover {
+  background: #f8fafc;
+}
+.btn-save {
+  border-radius: 0.75rem;
+  background: #0f766e;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+.btn-save:hover {
+  background: #115e59;
+}
+.btn-save:disabled {
+  opacity: 0.5;
+}
+</style>
