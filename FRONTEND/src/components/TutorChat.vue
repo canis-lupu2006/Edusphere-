@@ -66,14 +66,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Sparkles, Send, Paperclip } from 'lucide-vue-next'
-import { useCloudFunctions } from '@/composables/useCloudFunctions'
+import { askTutor, isGeminiConfigured } from '@/composables/useGeminiTutor'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
   text: string
 }
 
-const { tutorAI } = useCloudFunctions()
 const messages = ref<ChatMessage[]>([])
 const draft = ref('')
 const pending = ref(false)
@@ -81,24 +80,25 @@ const pending = ref(false)
 async function send() {
   const text = draft.value.trim()
   if (!text) return
+  const prior = messages.value.slice()
   messages.value.push({ role: 'user', text })
   draft.value = ''
   pending.value = true
   try {
-    const data = await tutorAI(text)
-    let reply: string
-    if (typeof data === 'string') {
-      reply = data
-    } else {
-      const obj = data as { reply?: string; message?: string; response?: string }
-      reply = obj?.reply || obj?.message || obj?.response || JSON.stringify(data)
-    }
+    const reply = await askTutor(prior, text)
     messages.value.push({ role: 'assistant', text: reply })
-  } catch {
-    messages.value.push({
-      role: 'assistant',
-      text: "Désolé, le tuteur IA est indisponible pour le moment.",
-    })
+  } catch (err) {
+    console.error('[TutorChat]', err)
+    const code = err instanceof Error ? err.message : ''
+    let fallback =
+      "Désolé, le tuteur IA est indisponible pour le moment."
+    if (code === 'NO_GEMINI_KEY' || !isGeminiConfigured()) {
+      fallback =
+        "Configure VITE_GEMINI_API_KEY dans FRONTEND/.env (clé Google AI Studio), puis relancez npm run serve dans FRONTEND."
+    } else if (code && code !== 'EMPTY_RESPONSE' && code !== 'EMPTY_MESSAGE') {
+      fallback = code
+    }
+    messages.value.push({ role: 'assistant', text: fallback })
   } finally {
     pending.value = false
   }
