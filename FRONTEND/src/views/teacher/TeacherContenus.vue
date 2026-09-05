@@ -12,6 +12,19 @@
 
     <div class="glass-card mb-6 p-5">
       <h2 class="mb-4 font-display text-lg font-semibold">Importer des ressources</h2>
+      <p class="mb-3 text-sm text-slate-500">
+        Pour qu’un fichier apparaisse chez les élèves, rattachez-le à un cours (ou utilisez
+        <RouterLink to="/teacher/cours" class="font-semibold text-violet-600 hover:underline">Mes cours</RouterLink>).
+      </p>
+      <label class="mb-3 block text-sm">
+        <span class="mb-1 block text-slate-500">Cours cible (recommandé)</span>
+        <select v-model="selectedCourseId" class="input-field">
+          <option value="">Bibliothèque seule (pas visible élève)</option>
+          <option v-for="c in myCourses" :key="c.id" :value="c.id">
+            {{ c.titre }} — {{ c.matiere || '' }}
+          </option>
+        </select>
+      </label>
       <label
         class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-blue-500/30 bg-blue-500/5 px-6 py-10 text-center transition hover:border-blue-400/50 hover:bg-blue-500/10"
       >
@@ -80,9 +93,11 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import type { Unsubscribe } from 'firebase/firestore'
-import type { AiContent } from '@/types/models'
+import type { AiContent, Course, ResourceItem } from '@/types/models'
 import {
+  arrayUnion,
   collection,
   query,
   where,
@@ -99,11 +114,14 @@ import { nowTimestamp } from '@/utils/scoring'
 
 const auth = useAuthStore()
 const pending = ref<AiContent[]>([])
+const myCourses = ref<Course[]>([])
+const selectedCourseId = ref('')
 const loading = ref(true)
 const uploading = ref(false)
 const uploadMsg = ref('')
 const uploadOk = ref(false)
 let unsub: Unsubscribe | null = null
+let unsubCourses: Unsubscribe | null = null
 
 onMounted(() => {
   const uid = auth.user?.uid
@@ -120,9 +138,18 @@ onMounted(() => {
     pending.value = snap.docs.map((d) => ({ id: d.id, ...d.data() } as AiContent))
     loading.value = false
   })
+  unsubCourses = onSnapshot(
+    query(collection(db, 'courses'), where('enseignantId', '==', uid)),
+    (snap) => {
+      myCourses.value = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Course))
+    },
+  )
 })
 
-onUnmounted(() => unsub?.())
+onUnmounted(() => {
+  unsub?.()
+  unsubCourses?.()
+})
 
 async function onFile(e: Event) {
   const input = e.target as HTMLInputElement
@@ -132,20 +159,47 @@ async function onFile(e: Event) {
   uploading.value = true
   uploadMsg.value = ''
   try {
-    const path = `resources/${auth.user.uid}/${Date.now()}_${file.name}`
+    const courseId = selectedCourseId.value
+    const path = courseId
+      ? `courses/${courseId}/${Date.now()}_${file.name}`
+      : `resources/${auth.user.uid}/${Date.now()}_${file.name}`
     const sRef = storageRef(storage, path)
     await uploadBytes(sRef, file)
     const url = await getDownloadURL(sRef)
+    const course = myCourses.value.find((c) => c.id === courseId)
+
     await addDoc(collection(db, 'resources'), {
       titre: file.name,
       fileName: file.name,
       fileType: file.type,
       url,
+      storagePath: path,
       enseignantId: auth.user.uid,
+      courseId: courseId || null,
+      classeId: course?.classeId || null,
       createdAt: nowTimestamp(),
     })
+
+    if (courseId) {
+      const item: ResourceItem = {
+        id: `${Date.now()}`,
+        titre: file.name,
+        name: file.name,
+        url,
+        fileType: file.type,
+        storagePath: path,
+        uploadedAt: new Date().toISOString(),
+      }
+      await updateDoc(doc(db, 'courses', courseId), {
+        ressources: arrayUnion(item),
+        updatedAt: nowTimestamp(),
+      })
+    }
+
     uploadOk.value = true
-    uploadMsg.value = `« ${file.name} » importé.`
+    uploadMsg.value = courseId
+      ? `« ${file.name} » ajouté au cours — visible pour les élèves.`
+      : `« ${file.name} » importé (bibliothèque seule).`
   } catch {
     uploadOk.value = false
     uploadMsg.value = "Échec de l'import."

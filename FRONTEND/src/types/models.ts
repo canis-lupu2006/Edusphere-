@@ -24,9 +24,13 @@ export interface UserProfile {
 }
 
 export interface ResourceItem {
+  id?: string
   titre?: string
   name?: string
   url: string
+  fileType?: string
+  storagePath?: string
+  uploadedAt?: Timestamp | FieldValue | string
 }
 
 export interface Course {
@@ -34,13 +38,18 @@ export interface Course {
   titre?: string
   matiere?: string
   description?: string
+  /** Texte du cours (lecture élève) */
+  contenuTexte?: string
   classeId?: string
+  classeNom?: string
   enseignantId?: string
   enseignantNom?: string
   chapitres?: number | unknown[]
   ressources?: ResourceItem[]
   resources?: ResourceItem[]
+  status?: 'brouillon' | 'publie' | string
   createdAt?: Timestamp | FieldValue
+  updatedAt?: Timestamp | FieldValue
   [key: string]: unknown
 }
 
@@ -231,7 +240,10 @@ export interface TeacherResource {
   url?: string
   fileName?: string
   fileType?: string
+  storagePath?: string
   enseignantId?: string
+  courseId?: string
+  classeId?: string
   createdAt?: Timestamp | FieldValue
   [key: string]: unknown
 }

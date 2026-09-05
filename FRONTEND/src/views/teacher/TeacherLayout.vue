@@ -16,6 +16,7 @@ import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 import {
   LayoutDashboard,
+  BookOpen,
   GraduationCap,
   Calendar,
   Sparkles,
@@ -26,6 +27,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout.vue'
 
 const nav = computed(() => [
   { to: '/teacher', label: 'Tableau de bord', icon: LayoutDashboard, exact: true },
+  { to: '/teacher/cours', label: 'Mes cours', icon: BookOpen },
   { to: '/teacher/comprehension', label: 'Compréhension', icon: GraduationCap },
   { to: '/teacher/programme', label: 'Programme & Planification', icon: Calendar },
   { to: '/teacher/contenus', label: 'Contenus & Validation IA', icon: Sparkles },

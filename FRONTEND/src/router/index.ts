@@ -43,6 +43,7 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, roles: ['enseignant'] satisfies UserRole[] },
     children: [
       { path: '', name: 'teacher', component: () => import('@/views/teacher/TeacherDashboard.vue') },
+      { path: 'cours', name: 'teacher-courses', component: () => import('@/views/teacher/TeacherCourses.vue') },
       { path: 'comprehension', name: 'teacher-comprehension', component: () => import('@/views/teacher/TeacherComprehension.vue') },
       { path: 'programme', name: 'teacher-programme', component: () => import('@/views/teacher/TeacherProgramme.vue') },
       { path: 'contenus', name: 'teacher-contenus', component: () => import('@/views/teacher/TeacherContenus.vue') },

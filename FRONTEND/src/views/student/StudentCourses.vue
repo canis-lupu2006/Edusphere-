@@ -43,13 +43,27 @@
         <h3 class="font-display text-lg font-semibold text-slate-900">
           {{ course.titre || course.matiere || 'Cours' }}
         </h3>
-        <span
-          class="mt-2 inline-flex w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
-          :class="themeOf(course).badge"
-        >
-          {{ String(chapterCount(course)).padStart(2, '0') }} chapitres
-        </span>
-        <p class="mt-3 text-xs text-slate-500">
+        <div class="mt-2 flex flex-wrap gap-2">
+          <span
+            class="inline-flex w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+            :class="themeOf(course).badge"
+          >
+            {{ course.matiere || 'Cours' }}
+          </span>
+          <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">
+            {{ resourceCount(course) }} fichier(s)
+          </span>
+          <span
+            v-if="course.contenuTexte?.trim()"
+            class="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700"
+          >
+            Texte à lire
+          </span>
+        </div>
+        <p class="mt-3 line-clamp-2 text-sm text-slate-500">
+          {{ course.description || 'Ouvre le cours pour lire le contenu déposé par ton professeur.' }}
+        </p>
+        <p class="mt-2 text-xs text-slate-500">
           Enseignant
           <span class="ml-1 font-medium text-slate-700">{{ course.enseignantNom || '—' }}</span>
         </p>
@@ -94,9 +108,7 @@ function themeOf(course: Course) {
   return subjectTheme(course.matiere || course.titre)
 }
 
-function chapterCount(course: Course) {
-  if (typeof course.chapitres === 'number') return course.chapitres
-  if (Array.isArray(course.chapitres)) return course.chapitres.length
+function resourceCount(course: Course) {
   const res = course.ressources || course.resources || []
   return Array.isArray(res) ? res.length : 0
 }
@@ -104,6 +116,8 @@ function chapterCount(course: Course) {
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase()
   return courses.value.filter((c) => {
+    // brouillon caché aux élèves (anciens cours sans status = visibles)
+    if (c.status === 'brouillon') return false
     if (matiereFilter.value && c.matiere !== matiereFilter.value) return false
     if (!q) return true
     return (
@@ -124,7 +138,9 @@ onMounted(() => {
   unsub = onSnapshot(
     q,
     (snap) => {
-      courses.value = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Course))
+      courses.value = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() } as Course))
+        .sort((a, b) => (a.titre || '').localeCompare(b.titre || '', 'fr'))
       loading.value = false
     },
     () => {
