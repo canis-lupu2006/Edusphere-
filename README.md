@@ -1,2 +1,0 @@
-# Edusphere-
-hackaton 

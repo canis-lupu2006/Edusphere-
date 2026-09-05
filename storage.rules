@@ -1,0 +1,42 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isTeacher() {
+      return signedIn()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'enseignant';
+    }
+
+    function isAdminOrMinistere() {
+      return signedIn()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['admin', 'ministere'];
+    }
+
+    // Fichiers rattachés à un cours (enseignant → élève)
+    match /courses/{courseId}/{fileName} {
+      allow read: if signedIn();
+      allow write: if isTeacher() || isAdminOrMinistere();
+    }
+
+    // Exercices PDF
+    match /exercises/{userId}/{fileName} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == userId;
+    }
+
+    // Bibliothèque enseignant
+    match /resources/{userId}/{fileName} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == userId;
+    }
+
+    // Programmes officiels (ministère)
+    match /programmes/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if isAdminOrMinistere();
+    }
+  }
+}
