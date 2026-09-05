@@ -82,7 +82,9 @@ const props = withDefaults(
     spaceLabel: '',
     subtitle: '',
     accent: 'blue',
-    logoIcon: GraduationCap,
+    // Factory obligatoire : sinon Vue invoque GraduationCap() comme default factory
+    // et Lucide plante (Cannot destructure property 'slots' of 'undefined').
+    logoIcon: () => GraduationCap,
     asideClass: '',
   },
 )
